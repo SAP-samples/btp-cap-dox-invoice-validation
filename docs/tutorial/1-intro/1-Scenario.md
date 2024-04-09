@@ -17,6 +17,9 @@ The main **Process Steps** are:
 1. The invoice arrives via email as PDF attachment or via postal letter, which will be scanned into PDF format.
 2. The PDF invoice will be preprocessed by Document Information Extraction (DOX) Service.
 3. The Invoice will be dispatched to correct processor and afterwards validated by an Accounting Team Member. In case of additional expert domain knowledge is necessary, then the invoice could be forwarded to an Internal or External Validator.
+
+TODO: What does it mean to do a position correction; one, two examples (e.g., unit price is not what was agreed on, order amount shown for a part is higher than what was actually ordered); what are positions in an invoice
+
 4. The Internal or External Validator is doing an detailed invoice check, e.g. doing position corrections, deductions and retentions. After he finished his work he sends back the invoice to Accounting team member.
 5. The Accounting Team Member is doing a last double check and forwards the validated invoice to SAP Central Invoice Management (CIM) or OpenText Vendor Invoice Management (VIM).
 
