@@ -29,3 +29,27 @@ Following **Actions** for Invoice Validation could be done by this application:
 The simplified **Solution Diagram** looks like:
 
 [<img src="images\Solution_Diagram.png" width="1200"/>](images\Solution_Diagram.png?raw=true)
+
+## Application Interaction
+This section provides an in-depth explanation of how the invoice validation application's CAP backend interacts with the different services on the BTP, focusing on the Document Information Extraction (DOX) Service.
+
+As illustrated above, the application's core purpose is to validate invoices received via e-mail or physical mail (scanned into PDF format). These invoices are stored in the Amazon S3 Object Store, ensuring a persistent version of each invoice is available.
+
+Here's the sequence of interactions:
+
+1. The CAP backend fetches the invoices from the Amazon S3 Object Store, marking the beginning of the sequence of interactions.
+2. After being fetched, each invoice is uploaded to the DOX Service. With its powerful API, this service extracts structured, meaningful data from documents such as invoices, going beyond the typical OCR-scanned text.
+3. The DOX Service processes the invoice and returns a job ID along with a status code indicating that the extraction is in progress. At this point, the backend initiates a periodic interval to check the processing status every 10 seconds for up to 3 minutes.
+4. The DOX Service's job ID is stored in the SAP HANA Cloud Database. This database holds all invoice-related information, including the job IDs, metadata of the invoices, and invoice correction data, thereby enabling retrieval of document extraction later on.
+5. Once the invoice is processed, the job ID is retrieved from the SAP HANA Cloud Database.
+6. The backend then requests the extraction data from the DOX Service using the job ID.
+7. When the invoice information extraction is complete, the DOX Service returns it in a structured JSON format.
+8. The backend stores the invoice information extractions in the Amazon S3 Object Store.
+9. When a user accesses the front end (UI5 Web Components for React), it fetches the extraction data of a specific invoice from the backend.
+10. The stored invoice information extractions are retrieved from the Object Store.
+11. The extracted invoice information is sent back to the front end.
+
+
+This data then populates invoice values in the UI, enhancing the user experience during invoice validation. If the extraction is not finished, the invoice appears greyed out, indicating it's not ready for validation.
+
+[<img src="images\Solution_Diagram_interaction_new_cache.drawio.png" width="1200"/>](images/Solution_Diagram_Interaction_new_cache.drawio.png)
