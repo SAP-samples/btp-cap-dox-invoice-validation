@@ -17,11 +17,14 @@ The main **Process Steps** are:
 1. The invoice arrives via email as PDF attachment or via postal letter, which will be scanned into PDF format.
 2. The PDF invoice will be preprocessed by Document Information Extraction (DOX) Service.
 3. The Invoice will be dispatched to correct processor and afterwards validated by an Accounting Team Member. In case of additional expert domain knowledge is necessary, then the invoice could be forwarded to an Internal or External Validator.
-
-TODO: What does it mean to do a position correction; one, two examples (e.g., unit price is not what was agreed on, order amount shown for a part is higher than what was actually ordered); what are positions in an invoice
-
 4. The Internal or External Validator is doing an detailed invoice check, e.g. doing position corrections, deductions and retentions. After he finished his work he sends back the invoice to Accounting team member.
 5. The Accounting Team Member is doing a last double check and forwards the validated invoice to SAP Central Invoice Management (CIM) or OpenText Vendor Invoice Management (VIM).
+
+Following **Actions** for Invoice Validation could be done by this application:
+
+1. **Position Corrections:** Invoice positions are single items of an invoice that need to be corrected due to the unit price or amount are incorrect and need to be adjusted. For example the unit price is not what was agreed on or the order amount is higher than shown in the purchase order.
+2. **Deductions:** Deductions are based on an dedicated position of the invoice and reduce the price of the position. For example some parts of an position are damaged or a position causes a damage.
+3. **Retentions:** Retentions are based on the overall invoice an reduce the invoice total. For example some documentation or a monetary bond is missing.
 
 The simplified **Solution Diagram** looks like:
 
