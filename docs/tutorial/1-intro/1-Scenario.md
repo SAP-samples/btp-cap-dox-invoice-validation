@@ -20,17 +20,12 @@ The main **Process Steps** are:
 4. The Internal or External Validator is doing an detailed invoice check, e.g. doing position corrections, deductions and retentions. After he finished his work he sends back the invoice to Accounting team member.
 5. The Accounting Team Member is doing a last double check and forwards the validated invoice to SAP Central Invoice Management (CIM) or OpenText Vendor Invoice Management (VIM).
 
-Following **Actions** for Invoice Validation could be done by this application:
-
-1. **Position Corrections:** Invoice positions are single items of an invoice that need to be corrected due to the unit price or amount are incorrect and need to be adjusted. For example the unit price is not what was agreed on or the order amount is higher than shown in the purchase order.
-2. **Deductions:** Deductions are based on an dedicated position of the invoice and reduce the price of the position. For example some parts of an position are damaged or a position causes a damage.
-3. **Retentions:** Retentions are based on the overall invoice an reduce the invoice total. For example some documentation or a monetary bond is missing.
-
 The simplified **Solution Diagram** looks like:
 
 [<img src="images\Solution_Diagram.png" width="1200"/>](images\Solution_Diagram.png?raw=true)
 
 ## Application Interaction
+
 This section provides an in-depth explanation of how the invoice validation application's CAP backend interacts with the different services on the BTP, focusing on the Document Information Extraction (DOX) Service.
 
 As illustrated above, the application's core purpose is to validate invoices received via e-mail or physical mail (scanned into PDF format). These invoices are stored in the Amazon S3 Object Store, ensuring a persistent version of each invoice is available.
@@ -38,7 +33,7 @@ As illustrated above, the application's core purpose is to validate invoices rec
 Here's the sequence of interactions:
 
 1. The CAP backend fetches the invoices from the Amazon S3 Object Store, marking the beginning of the sequence of interactions.
-2. After being fetched, each invoice is uploaded to the DOX Service. With its powerful API, this service extracts structured, meaningful data from documents such as invoices, going beyond the typical OCR-scanned text.
+2. After being fetched, each invoice is uploaded to the DOX Service. With its powerful API, the service leverages GenAI to extract structured, meaningful data from documents such as invoices, going beyond the typical OCR-scanned text.
 3. The DOX Service processes the invoice and returns a job ID along with a status code indicating that the extraction is in progress. At this point, the backend initiates a periodic interval to check the processing status every 10 seconds for up to 3 minutes.
 4. The DOX Service's job ID is stored in the SAP HANA Cloud Database. This database holds all invoice-related information, including the job IDs, metadata of the invoices, and invoice correction data, thereby enabling retrieval of document extraction later on.
 5. Once the invoice is processed, the job ID is retrieved from the SAP HANA Cloud Database.
@@ -52,4 +47,25 @@ Here's the sequence of interactions:
 
 This data then populates invoice values in the UI, enhancing the user experience during invoice validation. If the extraction is not finished, the invoice appears greyed out, indicating it's not ready for validation.
 
-[<img src="images\Solution_Diagram_interaction_new_cache.drawio.png" width="1200"/>](images/Solution_Diagram_Interaction_new_cache.drawio.png)
+[<img src="images\Solution_Diagram_Interaction_new_cache.drawio.png" width="1200"/>](images/Solution_Diagram_Interaction_new_cache.drawio.png)
+
+## DOX UI improvements
+
+In this case, DOX is used to extract values of invoices in a structured way. Invoices that are being corrected with this invoice correction tool, contain the following information per invoice entry:
+1. position
+2. description for the entry of the invoice
+3. quantity
+4. quantity descriptior such as pieces, t (tons), m (meters), etc.
+5. unit price
+6. total amount (quantity * unit price)
+
+From the invoice validation perspective, the user has to read the values on the pdf and compare these with the actual delivered goods or services. If something does not match, the user needs to enter the values on the PDF and then the corrected values in a form to clarify that a mistake was made.
+
+[<img src="images\without_dox_service.gif" width="1200"/>](images/without_dox_service.gif)
+Invoice Correction without the use of the DOX service
+
+Without the DOX service, all the data had to be filled out manually.<br>
+With the DOX service, the data has already been extracted. With that, an overlay button on top of each entry in an invoice can be shown. Upon clicking this button, the values can be filled out automatically and the user only needs to enter the revised values.
+
+[<img src="images\with_dox_service.gif" width="1200"/>](images/with_dox_service.gif)
+Invoice Correction with DOX integration
