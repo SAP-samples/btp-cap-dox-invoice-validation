@@ -7,4 +7,4 @@ Destination Service | lite | All
 Authorization and Trust Management Service (XSUAA) | application | All
 SAP HANA Schemas & HDI Containers | hdi-shared | All
 Object Store | s3-standard | AWS only
-Document Information Extraction | premium_edition | AWS only
+Document Information Extraction (DOX) | premium_edition | AWS only
