@@ -9,26 +9,21 @@ This sample tries to alleviate some of those pain points. It presupposes a clear
 it simplifies validation, allowing to quickly copy over entries from the original invoice, correct them; and then forward the invoice for someone else
 to validate it further. At the same time, each correction and the reason for it is documented over time.
 
-<figure>
-  <img
-  src="./docs/tutorial/1-intro/images/with_dox_service.gif"
-  alt="benefits of DOX">
-  <figcaption>Invoice correction simplified with the help of DOX</figcaption>
-</figure>
-</br>
+<!-- workaround to make img look nice on GitHub with centered subtitle (copied from https://github.com/SAP-samples/btp-cap-genai-rag/blob/main/README.md) -->
+<p align="center">
+    <img src="./docs/tutorial/1-intro/images/with_dox_service.gif" alt="benefits of DOX" />
+    <em>Invoice correction simplified with the help of DOX</em>
+</p>
 
 For that _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
 —service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
 and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)) is leveraged. The sample runs _entirely_ on BTP. Think of it as a separate extension to _SAP Central Invoice Management (CIM)_
 or _OpenText Vendor Invoice Management_, rather than it trying to compete with the latter.
 
-<figure>
-  <img
-  src="./docs/tutorial/1-intro/images/Solution_Diagram.png"
-  alt="architecture diagram">
-  <figcaption>Architecture used in this sample</figcaption>
-</figure>
-</br>
+<p align="center">
+    <img src="./docs/tutorial/1-intro/images/Solution_Diagram.png" alt="architecture diagram" />
+    <em>Components of architecture for sample: Facilitate Invoice Validation — leveraging Document Information Extraction</em>
+</p>
 
 The sample presupposes a process flow (simplified for demonstration purposes) that covers the following steps:
 1. The invoice arrives via email as _PDF attachment_ or via _postal letter_, which will be scanned into PDF format.
@@ -37,12 +32,10 @@ The sample presupposes a process flow (simplified for demonstration purposes) th
 4. The Internal or External Validator is doing an detailed invoice check, e.g. doing _Position Corrections_, _Deductions_ and _Retentions_. After he finished his work he sends back the invoice to the Accounting team member.
 5. The Accounting Team Member is doing a last double check and forwards the validated invoice to CIM, OpenText Vendor Invoice Management or any other comparable solution.
 
-<figure>
-  <img
-  src="./docs/tutorial/1-intro/images/Process_Flow.png"
-  alt="Process flow">
-  <figcaption>Process flow used for demonstration purposes</figcaption>
-</figure>
+<p align="center">
+    <img src="./docs/tutorial/1-intro/images/Process_Flow.png" alt="Process flow" />
+    <em>Process flow used for demonstration purposes</em>
+</p>
 
 ## Prerequisites
 
