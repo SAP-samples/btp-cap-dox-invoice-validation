@@ -15,6 +15,7 @@ to validate it further. At the same time, each correction and the reason for it 
   alt="benefits of DOX">
   <figcaption>Invoice correction simplified with the help of DOX</figcaption>
 </figure>
+</br>
 
 For that _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
 —service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
@@ -27,6 +28,7 @@ or _OpenText Vendor Invoice Management_, rather than it trying to compete with t
   alt="architecture diagram">
   <figcaption>Architecture used in this sample</figcaption>
 </figure>
+</br>
 
 The sample presupposes a process flow (simplified for demonstration purposes) that covers the following steps:
 1. The invoice arrives via email as _PDF attachment_ or via _postal letter_, which will be scanned into PDF format.
