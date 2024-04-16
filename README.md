@@ -17,7 +17,7 @@ to validate it further. At the same time, each correction and the reason for it 
 
 For that _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
 —service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
-and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)) is leveraged. The sample runs _entirely_ on BTP. Think of it as a separate extension to _SAP Central Invoice Management (CIM)_
+and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)) is leveraged. The sample runs _entirely_ on BTP. Think of it as a separate extension to _SAP Central Invoice Management_ (CIM)
 or _OpenText Vendor Invoice Management_, rather than it trying to compete with the latter.
 
 <p align="center">
@@ -50,7 +50,7 @@ Object Store | s3-standard | AWS only
 Document Information Extraction (DOX) | premium_edition | AWS only
 
 ## Getting started
-To get the sample up and running for the first time, head to [Initial Deployment]. If you want to run the sample locally or extend it,
+To get the sample up and running for the first time, head to [Initial Deployment](./docs/tutorial/2-setup/InitialDeployment.md). If you want to run the sample locally or extend it,
 check out [Setup for Local Development](./docs/tutorial/2-setup/DevSetup.md).
 
 To get a more thorough understanding of how the sample's components work/fit together; and what benefits are possible with the help of DOX,
