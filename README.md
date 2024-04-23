@@ -2,62 +2,38 @@
 <!--- Register repository https://api.reuse.software/register, then add REUSE badge:
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP-samples/REPO-NAME)](https://api.reuse.software/info/github.com/SAP-samples/REPO-NAME)
 -->
-Invoice validation is often an opaque, manual and error-prone process. It might involve editing invoice PDF files directly; and sending them back and forth via email between multiple parties;
+Invoice validation is often an opaque, manual and error-prone process. It involves editing invoice PDF files directly, or sending them back and forth via email between multiple parties—
 until it can finally be approved for payment.
 
-This sample tries to alleviate some of those pain points. It presupposes a clearly defined validation process. More importantly,
-it simplifies validation, allowing to quickly copy over entries from the original invoice, correct them; and then forward the invoice for someone else
-to validate it further. At the same time, each correction and the reason for it is documented over time.
-
-<!-- workaround to make img look nice on GitHub with centered subtitle (copied from https://github.com/SAP-samples/btp-cap-genai-rag/blob/main/README.md) -->
-<p align="center">
-    <img src="./docs/tutorial/1-intro/images/with_dox_service.gif" alt="benefits of DOX" />
-    <em>Invoice correction simplified with the help of DOX</em>
-</p>
+This sample tries to alleviate some of those pain points. It presupposes a clearly defined validation workflow. More importantly,
+it simplifies and accelerates validation, allowing to quickly copy over entries from the original invoice, correct entries; and then forward the invoice to the next person in line
+in the workflow to validate it further. As a side effect each correction and the rationale behind it is documented over time.
 
 For that _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
-—service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
+—a service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
 and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)) is leveraged. The sample runs _entirely_ on BTP. Think of it as a separate extension to _SAP Central Invoice Management_ (CIM)
 or _OpenText Vendor Invoice Management_, rather than it trying to compete with the latter.
-
 <p align="center">
     <img src="./docs/tutorial/1-intro/images/Solution_Diagram.png" alt="architecture diagram" />
-    <em>Components of architecture for sample: Facilitate Invoice Validation — leveraging Document Information Extraction</em>
+    <em>Sample architecture with DOX and CAP at its core</em>
 </p>
-
-The sample presupposes a process flow (simplified for demonstration purposes) that covers the following steps:
-1. The invoice arrives via email as _PDF attachment_ or via _postal letter_, which will be scanned into PDF format.
-2. The invoice PDF file will be preprocessed by the DOX service.
-3. The invoice will be dispatched to the correct processor and afterwards validated by an _Accounting Team Member_. In case of additional expert domain knowledge is necessary, then the invoice could be forwarded to an _Internal_ or _External Validator_.
-4. The Internal or External Validator is doing an detailed invoice check, e.g. doing _Position Corrections_, _Deductions_ and _Retentions_. After he finished his work he sends back the invoice to the Accounting team member.
-5. The Accounting Team Member is doing a last double check and forwards the validated invoice to CIM, OpenText Vendor Invoice Management or any other comparable solution.
-
-<p align="center">
-    <img src="./docs/tutorial/1-intro/images/Process_Flow.png" alt="Process flow" />
-    <em>Process flow used for demonstration purposes</em>
-</p>
-
-## Prerequisites
-
-This sample requires a subaccount that uses _Cloud Foundry_ as application runtime, and expects the following service _entitlements_ to be assigned:
-
-Service Name | Service Plan | Available Hyperscalers
---- | --- |  ---
-Destination Service | lite | All
-Authorization and Trust Management Service (XSUAA) | application | All
-SAP HANA Schemas & HDI Containers | hdi-shared | All
-Object Store | s3-standard | AWS only
-Document Information Extraction (DOX) | premium_edition | AWS only
 
 ## Getting started
-To get the sample up and running for the first time, head to [Initial Deployment](./docs/tutorial/2-setup/InitialDeployment.md). If you want to run the sample locally or extend it,
-check out [Setup for Local Development](./docs/tutorial/2-setup/DevSetup.md).
+Feel free to check out these links to get started working with the sample. 
 
-To get a more thorough understanding of how the sample's components work/fit together; and what benefits are possible with the help of DOX,
-feel free to follow these links:
-- [Detailed description of the scenario](./docs/tutorial/1-intro/1-Scenario.md)
-- [Application Interaction](./docs/tutorial/1-intro/1-Scenario.md)
-- [UI Improvements](./docs/tutorial/1-intro/1-Scenario.md)
+- Intro
+  - [Scenario](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/1-intro/1-Scenario.md)<!-- dc-card: {"label": ["Scenario"]} dc-card -->
+  - [Improvements](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/1-intro/2-Improvements.md)<!-- dc-card: {"label": ["Improvements"]} dc-card -->
+  - [Interaction](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/1-intro/3-Interaction.md)<!-- dc-card: {"label": ["Interaction"]} dc-card -->
+- Setup
+  - [Subaccount](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/1-Subaccount.md)<!-- dc-card: {"label": ["Subaccount"]} dc-card -->
+  - [Entitlements](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/2-Entitlements.md)<!-- dc-card: {"label": ["Entitlements"]} dc-card -->
+  - [Initial Deployment](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/3-InitialDeployment.md)<!-- dc-card: {"label": ["Initial Deployment"]} dc-card -->
+  - [Extensions](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/4-Extensions.md)<!-- dc-card: {"label": ["Extensions"]} dc-card -->
+- Integration
+  - [Inbound](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/3-integrate/1-Inbound.md)<!-- dc-card: {"label":  ["Inbound"]} dc-card -->
+  - [Outbound](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/3-integrate/2-Outbound.md)<!-- dc-card: {"label":  ["Outbound"]} dc-card -->
+  - [Notifications](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/3-integrate/2-Notifications.md)<!-- dc-card: {"label":  ["Notifications"]} dc-card -->
 
 ## Known Issues
 No known issues as of now.
