@@ -1,21 +1,20 @@
+## Extending the app
+To extend/customize the app, you need to setup the app for local development.
 
-To get the local development setup up and running, you will need to install a few more packages and bind the used BTP services
-to the locally running Cloud Programming Model ([CAP](https://cap.cloud.sap/docs/)) backend.
+1. Install the following required packages globally:
 
-Install the following packages globally.
 ```
 npm install -g @sap/cds-dk typescript ts-node
 ```
 
-Install the remaining, necessary npm packages locally while being at the root of your project directory. This also creates the entities types the CAP backend needs to run:
-Explain legacy-peer-deps.
+2. The remaining packages you can install directly in your project folder with:
 ```
 npm run setup --legacy-peer-deps
 ```
 
-Change directory to _api/_ and bind the used BTP services. Each suffix after the colon (:) is the name of the respective service key, which you
-need to create in your BTP cockpit.
-
+3. Your CAP API, which is now going to be running locally, still relies on the same BTP services as during deployment. Therefore, you need to bind them. The suffixes after the
+colons (:) represent the service keys of the service instances. You can create them in your BTP cockpit, when you click on a service instance and then on 'Create'. Execute the binding commands
+from within the `api/` folder.
 ```
 # bind xsuaa service
 cds bind -2 dox-invoice-validation-auth-dev:dox-iv-auth-dev-key
@@ -30,17 +29,18 @@ cds bind -2 dox-invoice-validation-db:dox-invoice-validation-db-key
 cds bind -2 dox-invoice-validation-s3-object-store:dox-invoice-validation-s3-key
 ```
 
-7. Change directory to _router/dev/_ and copy content of _default-services.sample.json_ to a new file _default-services.json_. Edit this file and add the missing client secret
-   of the xsuaa service from its service key. To display the contents of the service key, do:
+4. Configure the approuter to use the credentials of your XSUAA service instance (which was created during deployment). To do just that, cd into the `router/dev/` folder
+and copy content of `default-services.sample.json` to a new file `default-services.json`. Edit this file and insert the missing _client secret_ and _client id_
+from your XSUAA's service key. To display the contents of the service key, do:
 
 ```
 cf service-key dox-invoice-validation-auth-dev dox-iv-auth-dev-key
 ```
 
-8. Start the UI, approuter and CAP API while being at root of the project directory:
+5. Lastly, start the whole app (UI, approuter and CAP API) while being at root of the project directory:
 
 ```
 npm run watch
 ```
 
-Open your web browser at `http://localhost:5000`. There the approuter should be running and serve the UI.
+Go to `http://localhost:5000` in your browser; there the approuter should be running and serving the UI.
