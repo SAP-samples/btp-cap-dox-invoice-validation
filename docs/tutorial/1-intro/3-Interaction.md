@@ -20,5 +20,5 @@ The **Sequence of Interactions** looks like:
 
 This data **???** then populates invoice values in the UI, enhancing the user experience during invoice validation. If the extraction is not finished, the invoice appears greyed out, indicating it's not ready for validation.
 
-[<img src="images\Solution_Diagram_Interaction_new_cache.drawio.png" width="1200"/>](images/Solution_Diagram_Interaction_new_cache.drawio.png)
+[<img src="images\Solution_Diagram_interaction_new_cache.drawio.png" width="1200"/>](images/Solution_Diagram_interaction_new_cache.drawio.png)
 _**Picture:** Sequence Interactions of Invoice Validation_
