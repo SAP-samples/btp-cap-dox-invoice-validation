@@ -22,18 +22,17 @@ or _OpenText Vendor Invoice Management_, rather than it trying to compete with t
 Feel free to check out these links to get started working with the sample. 
 
 - Intro
-  - [Scenario](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/1-intro/1-Scenario.md)<!-- dc-card: {"label": ["Scenario"]} dc-card -->
-  - [Improvements](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/1-intro/2-Improvements.md)<!-- dc-card: {"label": ["Improvements"]} dc-card -->
-  - [Interaction](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/1-intro/3-Interaction.md)<!-- dc-card: {"label": ["Interaction"]} dc-card -->
+  - [Scenario](./docs/tutorial/1-intro/1-Scenario.md)
+  - [Improvements](./docs/tutorial/1-intro/2-Improvements.md)
+  - [Interaction](./docs/tutorial/1-intro/3-Interactions)
 - Setup
-  - [Subaccount](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/1-Subaccount.md)<!-- dc-card: {"label": ["Subaccount"]} dc-card -->
-  - [Entitlements](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/2-Entitlements.md)<!-- dc-card: {"label": ["Entitlements"]} dc-card -->
-  - [Initial Deployment](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/3-InitialDeployment.md)<!-- dc-card: {"label": ["Initial Deployment"]} dc-card -->
-  - [Extensions](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/2-setup/4-Extensions.md)<!-- dc-card: {"label": ["Extensions"]} dc-card -->
+  - [Subaccount](./docs/tutorial/2-setup/1-Subaccount.md)
+  - [Initial Deployment](./docs/tutorial/2-setup/3-InitialDeployment.md)
+  - [Extensions](./docs/tutorial/2-setup/4-Extensions.md)
 - Integration
-  - [Inbound](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/3-integrate/1-Inbound.md)<!-- dc-card: {"label":  ["Inbound"]} dc-card -->
-  - [Outbound](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/3-integrate/2-Outbound.md)<!-- dc-card: {"label":  ["Outbound"]} dc-card -->
-  - [Notifications](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/blob/main/docs/tutorial/3-integrate/2-Notifications.md)<!-- dc-card: {"label":  ["Notifications"]} dc-card -->
+  - [Inbound](./docs/tutorial/3-integrate/1-Inbound.md)
+  - [Outbound](./docs/tutorial/3-integrate/2-Outbound.md)
+  - [Notifications](./docs/tutorial/3-integrate/3-Notifications.md)
 
 ## Known Issues
 No known issues as of now.
