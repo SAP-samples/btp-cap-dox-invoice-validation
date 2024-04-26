@@ -1,16 +1,16 @@
 ## Notifications
 
-There are multiple situations during an invoice validation flow where it makes sense to **notify** diffenent involved persons according to the current validation status.
+There are multiple situations during an invoice validation flow where it makes sense to **notify** different involved personas according to the current validation status.
 
-For following situations, **information notifications** are triggered:
+For following situations, **information notifications** could be triggered:
 
 - **FORWARD**: An invoice has been forwarded to the next validator.
 - **ACCEPTED**: An invoice has been validated and accepted.
 - **REJECTED**: An invoice has been validated and rejected.
 - **NEW:** A new invoice has arrived.
-- **ADMIN**: A new validator has been assigned to an project.
+- **ADMIN**: A new validator has been assigned to a project.
 
-Additionally there are situations where **trace notifications** are triggered:
+Additionally, there are situations where **trace notifications** could be triggered:
 
 - A new position correction is entered
 - A new deduction is entered
@@ -24,17 +24,26 @@ Additionally there are situations where **trace notifications** are triggered:
 - A document is uploaded
 - A snapshot is downloaded
 
-For demo purposes, the notifications are currently implemented via **logging service** hooks - some examples are:
+For demo purposes, we simulated this idea to send out notifications, in that we write logs through the [SAP Application Logging Service](https://help.sap.com/docs/application-logging-service?locale=en-US)
+in those situations. Here are a few examples:
 
 **FORWARD** an invoice:
-
-```
+```js
 log.forward(requestorUserId, idNewCV);
 ```
-
-**ACCEPT / REJECT** an invoice:
-
+which in turn calls
+```js
+function forward(by: string, to: string) {
+    this.log.info(`${Keywords.FORWARD}: Invoice has been forwarded to validate by ${by}. Email sent to ${to}`, {
+        keyword: Keywords.FORWARD,
+        by: by,
+        email_sent_to: to
+    });
+}
 ```
+
+**ACCEPT/REJECT** an invoice:
+```js
 if (status === "ACCEPTED") {
     log.accept(req.user.id);
 }
@@ -43,14 +52,22 @@ if (status === "REJECTED") {
     log.reject(req.user.id);
 }
 ```
+which e.g., calls
+```js
+function accept(to: string) {
+    this.log.info(`${Keywords.ACCEPTED}: Invoice has been validated and accepted. Email sent to ${to} to inform `, {
+        keyword: Keywords.ACCEPTED,
+        email_sent_to: to
+    });
+}
+```
 
 **ASSIGN ROLE**:
-
-```
+```js
 log.assign(project, role, userId);
 ```
+You get the gist of it.
 
-In real implementations later on the logging service hooks needed to be replaced by real notification tools, like:
-
+In a real implementation later the logs above would need to be replaced by API calls to real notification tools. Imagine things like:
 - Sending an Email
-- Sending a Messenge via Messenger, like MS Teams or WhatsApp
+- Sending a message to something like Microsoft Teams or WhatsApp
