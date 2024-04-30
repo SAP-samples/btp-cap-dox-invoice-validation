@@ -25,8 +25,7 @@ To deploy the resources you must:
 
 1. Change the variables in the `samples.auto.tfvars` file to meet your requirements
 
-   > [!IMPORTANT]
-   > You should pay attention **specifically** to the users defined in the samples.auto.tfvars whether they already exist in your SAP BTP accounts. Otherwise you might get error messages like e.g. `Error: The user could not be found: john.doe@test.com`.
+   > ⚠️ You should pay attention **specifically** to the users defined in the samples.auto.tfvars whether they already exist in your SAP BTP accounts. Otherwise you might get error messages like e.g. `Error: The user could not be found: john.doe@test.com`.
 
 2. Initialize your workspace:
 
