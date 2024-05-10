@@ -1,0 +1,110 @@
+@font-face {
+    font-family: Source Sans Pro;
+    font-weight: 400;
+    src: url(sourcesanspro-regular.otf);
+}
+@font-face {
+    font-family: Source Sans Pro;
+    font-weight: 700;
+    src: url(sourcesanspro-bold.otf);
+}
+
+@page {
+    margin: 0.8cm;
+}
+
+html {
+    /* BASE */
+    margin: 0;
+    width: 100%;
+    font-family: Source Sans Pro;
+    font-weight: 400;
+    font-size: 10pt;
+    line-height: 1.6;
+}
+
+body {
+    width: 100%;
+}
+
+.hBox {
+    display: flex;
+    flex-direction: row;
+}
+.vBox {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-weight: 700;
+}
+.labelValue {
+    font-size: 12pt;
+}
+.originalValue {
+    text-decoration: line-through;
+}
+.labelMargin {
+    margin-left: 4mm;
+}
+.title {
+    font-size: 13pt;
+}
+.bigNumber {
+    font-weight: 700;
+    font-size: 13pt;
+    margin-left: 2mm;
+}
+
+/* TABLE STYLE */
+
+th {
+    font-weight: 700;
+    text-align: left;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 0.2cm;
+}
+table td {
+    font-size: 11pt;
+}
+table td,
+table th {
+    border: 0.1mm solid #d3d3d3;
+    border-left: 0;
+    border-right: 0;
+    padding-left: 1.2mm;
+    padding-right: 1.2mm;
+    padding-top: 0.8mm;
+    padding-bottom: 0.8mm;
+}
+table tr:first-child th {
+    border-top: 0;
+    padding-top: 0;
+}
+table tr:last-child td {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+table tr td:first-child,
+table tr th:first-child {
+    border-left: 0;
+    padding-left: 0;
+}
+table tr td:last-child,
+table tr th:last-child {
+    border-right: 0;
+    padding-right: 0;
+}
+
+.aggregate {
+    margin-top: 0.1cm;
+    padding-top: 0.8mm;
+    padding-bottom: 0.8mm;
+    padding-left: 2mm;
+    padding-right: 2mm;
+    background-color: #e5e5e5;
+}

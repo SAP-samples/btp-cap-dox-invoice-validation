@@ -1,0 +1,4 @@
+﻿ID;invoice_invoiceID;descriptor;processor_project_ID;processor_user_ID;createdAt;createdBy
+eea4d949-c3ff-418b-b510-cc96904a3970;6632559877890;ACCOUNTING_MEMBER_CHECK;e65de488-73f4-4aeb-86b0-8e4e9f1a9a2a;sophia.davis@example.com;2022-03-01T00:00:00.000Z;user1
+0c44de40-9103-4a69-b953-f18ea46b33ac;5435569865439;ACCOUNTING_MEMBER_CHECK;e65de488-73f4-4aeb-86b0-8e4e9f1a9a2a;sophia.davis@example.com;2022-03-01T00:00:00.000Z;user1
+0c44de40-9103-4a69-b853-f18ea46b33af;3420987413543;ACCOUNTING_MEMBER_CHECK;c3b78da9-8f6b-4fe5-8f07-9773e9c8a354;john.smith@example.com;2022-03-01T00:00:00.000Z;user1

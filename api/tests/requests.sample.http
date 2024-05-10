@@ -1,0 +1,21 @@
+# Find the credentials to replace the placeholders with in your XSUAA's service key.
+# E.g., the "url" field therein is the auth URL.
+
+# GET ACCESS TOKEN
+# @name getXsuaaToken
+POST <xsuaa-auth-url>/oauth/token
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+
+&client_id=<xsuaa-client-id>
+&client_secret=<xsuaa-client-secret>
+&grant_type=client_credentials
+
+### STORE ACCESS TOKEN IN VARIABLE FOR LATER REUSE
+@token = {{getXsuaaToken.response.body.$.access_token}}
+
+### EXAMPLE GET REQUEST
+#
+# host can be localhost:4004 for local testing, or the URL of the deployed app version.
+GET <host>/odata/v4/invoice-assessment/Invoices
+Authorization: Bearer {{token}}

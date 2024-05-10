@@ -1,55 +1,101 @@
-# Facilitate Invoice Validation — leveraging Document Information Extraction
-<!--- Register repository https://api.reuse.software/register, then add REUSE badge:
-[![REUSE status](https://api.reuse.software/badge/github.com/SAP-samples/REPO-NAME)](https://api.reuse.software/info/github.com/SAP-samples/REPO-NAME)
--->
-Invoice validation is often an opaque, manual and error-prone process. It involves editing invoice PDF files directly, or sending them back and forth via email between multiple parties—
-until it can finally be approved for payment.
+# BioNTech Invoice Validation
 
-This sample tries to alleviate some of those pain points. It presupposes a clearly defined validation workflow. More importantly,
-it simplifies and accelerates validation, allowing to quickly copy over entries from the original invoice, correct entries; and then forward the invoice to the next person in line
-in the workflow to validate it further. As a side effect each correction and the rationale behind it is documented over time.
+-   Cloud Foundry Environment
+-   _Subaccount_ on Business Technology Platform (BTP): [Strategic Customer Engagement CF 2](https://emea.cockpit.btp.cloud.sap/cockpit/#/globalaccount/SA0101006280/subaccount/fe1f07bf-be62-4e4b-9513-20c5359d4ab1/subaccountoverview)
+-   _Space_ inside the subaccount: [biontech](https://emea.cockpit.btp.cloud.sap/cockpit/#/globalaccount/SA0101006280/subaccount/fe1f07bf-be62-4e4b-9513-20c5359d4ab1/org/34a7c0a3-97bd-4ce9-bf6d-cbc43585fc09/space/de0a4d0b-a9c5-4d55-b5c7-c99a1fed83c6/applications)
 
-For that _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
-—a service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
-and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)) is leveraged. The sample runs _entirely_ on BTP. Think of it as a separate extension to _SAP Central Invoice Management_ (CIM)
-or _OpenText Vendor Invoice Management_, rather than it trying to compete with the latter.
+You need to be a member of that space.
 
-<!-- shows correctly with GitHub's markdown flavor -->
-> [!IMPORTANT]
-> The sample was built on AWS infrastructure on BTP. Therefore, we went with the Amazon S3 variant
-> of the BTP Object Store service, while the CAP backend talks to the S3 via the AWS Client S3 SDK. Generally, the sample
-> can also be run on GCP or Azure, if you slightly adjust the part of the code, that talks to the Object Store, and use
-> the according store variant.
+## Tech Stack
 
-<p align="center">
-    <img src="./docs/tutorial/1-intro/images/Solution_Diagram.png" alt="architecture diagram" />
-    <em>Sample architecture with DOX and CAP at its core</em>
-</p>
+-   [@sap/approuter]() acts as central entry point for the rest of the application. It abstracts the
+    authentication/authorization flow through the interaction with the
+    [XSUAA](https://sap.github.io/cloud-sdk/docs/java/guides/cloud-foundry-xsuaa-service) service
+-   [UI5 Webcomponents for React](https://sap.github.io/ui5-webcomponents-react/?path=/docs/getting-started--docs) (_might go back to standard UI5_) with _Typescript_
+    -   Leverages [Vite](https://vitejs.dev/) as frontend-tooling for a development server and to build the UI assets for production
+-   Cloud Programming Model ([CAP](https://cap.cloud.sap/docs/)) as the main backend API
+-   HANA DB
 
-## Getting started
-Feel free to check out these links to get started working with the sample. 
+## Set up the dev environment
 
-- Intro
-  - [Scenario](./docs/tutorial/1-intro/1-Scenario.md)
-  - [Improvements](./docs/tutorial/1-intro/2-Improvements.md)
-  - [Interaction](./docs/tutorial/1-intro/3-Interactions)
-- Setup
-  - [Subaccount](./docs/tutorial/2-setup/1-Subaccount.md)
-  - [Initial Deployment](./docs/tutorial/2-setup/3-InitialDeployment.md)
-  - [Extensions](./docs/tutorial/2-setup/4-Extensions.md)
-- Integration
-  - [Inbound](./docs/tutorial/3-integrate/1-Inbound.md)
-  - [Outbound](./docs/tutorial/3-integrate/2-Outbound.md)
-  - [Notifications](./docs/tutorial/3-integrate/3-Notifications.md)
+1. Clone the git repository using the `http` protocol. For that, you will need a [Personal Access Token ](https://github.tools.sap/settings/tokens). Then change directory to
+   the cloned project directory.
 
-## Known Issues
-No known issues as of now.
+```
+git clone https://github.tools.sap/PAA-SCE-EMEA/biontech-invoicing.git
 
-## How to obtain support
-[Create an issue](https://github.com/SAP-samples/btp-cap-dox-invoice-validation/issues) in this repository if you find a bug or have questions about the content.
- 
-## Contributing
-If you wish to contribute code, offer fixes or improvements, please send a pull request. Due to legal reasons, contributors will be asked to accept a DCO when they create the first pull request to this project. This happens in an automated fashion during the submission process. SAP uses [the standard DCO text of the Linux Foundation](https://developercertificate.org/).
+cd biontech-invoicing
+```
 
-## License
-Copyright (c) 2024 SAP SE or an SAP affiliate company. All rights reserved. This project is licensed under the Apache Software License, version 2.0 except as noted otherwise in the [LICENSE](LICENSE) file.
+2. Install `Node` 18.x.x which is required. To manage multiple Node versions you can use [NVM](https://github.com/nvm-sh/nvm). To check your current Node version, do:
+
+```
+node --version
+```
+
+3. Install the following packages globally. Here `npm` (Node Package Manager) is used which is automatically installed with `Node` in the previous step.
+
+```
+npm install -g @sap/cds-dk typescript ts-node
+```
+
+4. Install the remaining, necessary `npm` packages locally while being at the root of your project directory. This also creates the entities types the CAP API needs to run:
+
+```
+npm run setup --legacy-peer-deps
+```
+
+5. Install the Cloud Foundry [CLI](https://github.com/cloudfoundry/cli#downloads). Version 8 will do. Then log in to the `biontech` space on BTP:
+
+```
+cf login
+```
+
+6. Change directory to `api/` and bind the used BTP services:
+
+```
+# bind xsuaa service
+cds bind -2 biontech-invoicing-api-auth-dev:key
+
+# destination service
+cds bind -2 biontech-invoicing-api-dest
+
+# HANA DB
+cds bind -2 biontech-invoicing-api-db
+
+# Amazon S3 used as Object Store
+cds bind -2 biontech-invoicing-s3-object-store:bnt-s3-key
+```
+
+7. Change directory to `router/dev/` and copy content of `default-services.sample.json` to a new file `default-services.json`. Edit this file and add the missing client secret
+   of the xsuaa service. To get the client secret, do:
+
+```
+cf service-key biontech-invoicing-api-auth-dev key
+```
+
+8. Start the UI, approuter and CAP API while being at root of the project directory:
+
+```
+npm run watch
+```
+
+Open your web browser at `http://localhost:5000`. There the approuter should be running and serve the UI. For the locally running CAP API to have access to the data in the HANA Database, you
+need to be connected to the corporate network. The BIG-IP Edge Client (f5) VPN or equivalent will do. Note that the GlobalProtect VPN is not enough in this case.
+
+## Deployment
+
+In a fresh subaccount you will need to first do an initial deployment before you can proceed to setting up the dev environment. This is so that
+the required services are already running in the BTP space.
+
+First, log in to the `biontech` space:
+
+```
+cf login
+```
+
+To build the whole application and then deploy it to the `biontech` space, run at root level of the project directory:
+
+```
+npm run deploy
+```

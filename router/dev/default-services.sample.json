@@ -1,0 +1,8 @@
+{
+    "uaa": {
+        "name": "API_INSTANCE_NAME",
+        "url": "API_URL",
+        "clientid": "API_CLIENT_ID",
+        "clientsecret": "API_CLIENT_SECRET"
+    }
+}

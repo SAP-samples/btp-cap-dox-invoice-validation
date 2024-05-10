@@ -1,0 +1,28 @@
+{
+    "welcomeFile": "/index.html",
+    "authenticationMethod": "route",
+    "routes": [
+        {
+            "source": "^/api(.*)$",
+            "target": "$1",
+            "destination": "dox-invoice-validation-api",
+            "csrfProtection": false
+        },
+        {
+            "source": "^/snapshot(.*)$",
+            "target": "$1",
+            "destination": "dox-invoice-validation-snapshot",
+            "csrfProtection": false
+        },
+        {
+            "source": "^/user-api(.*)",
+            "target": "$1",
+            "service": "sap-approuter-userapi"
+        },
+        {
+            "source": "^/(.*)$",
+            "target": "/$1",
+            "destination": "dox-invoice-validation-ui"
+        }
+    ]
+}

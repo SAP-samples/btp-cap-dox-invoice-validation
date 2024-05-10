@@ -1,0 +1,56 @@
+html,
+body {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#root {
+    height: 100%;
+    width: 100%;
+}
+
+#error-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* CUSTOM */
+
+/* remove standard padding of tabcontainer content, looks off */
+.containerNoPadding::part(content) {
+    padding: 0px;
+}
+
+/* exposed CSS variables: https://github.com/SAP/ui5-webcomponents-react/blob/main/packages/base/src/styling/ThemingParameters.ts */
+.downloadLink {
+    color: var(--sapLinkColor);
+    cursor: pointer;
+}
+.downloadLink:hover {
+    text-decoration: var(--sapLink_Hover_TextDecoration);
+    color: var(--sapLink_Hover_Color);
+}
+.downloadLink:active {
+    text-decoration: var(--sapLink_Active_TextDecoration);
+    color: var(--sapLink_Active_Color);
+}
+.downloadLink:visited {
+    color: var(--sapLink_Visited_Color);
+    text-decoration: var(--sapLink_Active_TextDecoration);
+}
+.containerRoundBorder {
+    border-radius: var(--sapTile_BorderCornerRadius);
+    overflow: hidden;
+}
+
+.invoiceLineButton {
+    box-shadow: 5px 5px 5px black;
+}
+
+.invoiceLineButton:hover {
+    box-shadow: 2px 2px 2px black;
+}

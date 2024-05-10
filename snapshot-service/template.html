@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Corrections Snapshot</title>
+        <link href="style.css" media="print" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- INVOICE METADATA -->
+        <div id="header" style="width: 100%">
+            <h3>Invoice Validation Snapshot ({{currentTime}})</h3>
+            <div class="hBox">
+                <div class="vBox">
+                    <span class="label">Project</span>
+                    <span class="labelValue">{{metadata.projectName}}</span>
+                </div>
+                <div class="vBox labelMargin">
+                    <span class="label">Invoice Number</span>
+                    <span class="labelValue">{{metadata.invoiceId}}</span>
+                </div>
+                <div class="vBox labelMargin">
+                    <span class="label">Cost Group</span>
+                    <span class="labelValue">{{metadata.costGroup}}</span>
+                </div>
+                <div class="vBox labelMargin">
+                    <span class="label">Due Date</span>
+                    <span class="labelValue">{{metadata.dueDate}}</span>
+                </div>
+            </div>
+            <div class="vBox" style="margin-top: 0.6cm; margin-right: 66%">
+                <div class="hBox" style="justify-content: space-between">
+                    <span class="label">Gross Amount:</span>
+                    <span class="labelValue" style="font-weight: 700; text-decoration: line-through"
+                        >{{"%.2f"|format(metadata.grossAmount)}}</span
+                    >
+                </div>
+                <div class="hBox" style="justify-content: space-between">
+                    <span class="label">New Gross Amount:</span>
+                    <span class="labelValue" style="font-weight: 700">{{"%.2f"|format(metadata.newGrossAmount)}}</span>
+                </div>
+            </div>
+        </div>
+        <!-- POSITION CORRECTIONS -->
+        <div id="corrections" class="vBox" style="margin-top: 0.8cm">
+            <span class="title">Position Corrections</span>
+            <div class="vBox">
+                <table>
+                    <tr>
+                        <th>Position</th>
+                        <th>Quantity /<br />New</th>
+                        <th>Unit Price /<br />New</th>
+                        <th>Total /<br />New</th>
+                        <th>Changed by</th>
+                        <th>Changed at</th>
+                    </tr>
+                    {% for correction in corrections %}
+                    <tr>
+                        <td>{{correction.descriptor}}</td>
+                        <td>
+                            <span class="originalValue">{{"%.2f"|format(correction.originalQuantity)}}</span
+                            ><br />{{"%.2f"|format(correction.quantity)}}
+                        </td>
+                        <td>
+                            <span class="originalValue">{{"%.2f"|format(correction.originalUnitPrice)}}</span
+                            ><br />{{"%.2f"|format(correction.unitPrice)}}
+                        </td>
+                        <td>
+                            <span class="originalValue"
+                                >{{"%.2f"|format(correction.originalUnitPrice * correction.originalQuantity)}}</span
+                            ><br />{{"%.2f"|format(correction.unitPrice * correction.quantity)}}
+                        </td>
+                        <td>{{correction.changedBy}}</td>
+                        <td>{{correction.changedAt}}</td>
+                    </tr>
+                    <tr>
+                        <td><span style="margin-left: 1cm">{{correction.reason}}</span></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <div class="aggregate" style="margin-top: 0">
+                    <span class="title"
+                        >Positions adjusted {% if totalCorrectionOverPositions|float > 0.0 %} upwards {% else %}
+                        downwards {% endif %} in total by (in EUR):</span
+                    >
+                    <span class="bigNumber">{{"%.2f"|format(totalCorrectionOverPositions|abs)}}</span>
+                </div>
+            </div>
+        </div>
+        <!-- DEDUCTIONS -->
+        <div id="deductions" class="vBox" style="margin-top: 0.8cm">
+            <span class="title">Added Deductions</span>
+            <div class="vBox">
+                <table>
+                    <tr>
+                        <th>Position</th>
+                        <th>Amount</th>
+                        <th>Reason</th>
+                    </tr>
+                    {% for deduction in deductions %}
+                    <tr>
+                        <td>{{deduction.positionDescriptor}}</td>
+                        <td>{{"%.2f"|format(deduction.amount)}}</td>
+                        <td>{{deduction.reason}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <div class="aggregate">
+                    <span class="title">Deductions in total in EUR:</span
+                    ><span class="bigNumber">{{"%.2f"|format(deductionsTotal)}}</span>
+                </div>
+            </div>
+        </div>
+        <!-- RETENTIONS -->
+        <div id="retentions" class="vBox" style="margin-top: 0.8cm">
+            <span class="title">Added Retentions</span>
+            <div class="vBox">
+                <table>
+                    <tr>
+                        <th>Amount</th>
+                        <th>Reason</th>
+                    </tr>
+                    {% for retention in retentions %}
+                    <tr>
+                        <td>{{"%.2f"|format(retention.amount)}}</td>
+                        <td>{{retention.reason}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <div class="aggregate">
+                    <span class="title">Retentions in total in EUR:</span
+                    ><span class="bigNumber">{{"%.2f"|format(retentionsTotal)}}</span>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

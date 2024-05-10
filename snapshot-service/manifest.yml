@@ -1,0 +1,10 @@
+---
+applications:
+    - name: dox-invoice-validation-snapshot-service
+      random-route: true
+      path: ./
+      memory: 512M
+      disk-quota: 1022M
+      buildpacks:
+          - python_buildpack
+      command: python server.py

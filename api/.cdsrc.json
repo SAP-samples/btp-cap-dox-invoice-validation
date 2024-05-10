@@ -1,0 +1,11 @@
+{
+    "requires": {
+        "DOX_PREMIUM_INVOICE_VALIDATION": {
+            "kind": "rest",
+            "credentials": {
+                "destination": "DOX_PREMIUM_INVOICE_VALIDATION",
+                "requestTimeout": "300000"
+            }
+        }
+    }
+}

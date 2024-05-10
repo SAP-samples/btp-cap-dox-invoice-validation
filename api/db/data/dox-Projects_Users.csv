@@ -1,0 +1,6 @@
+﻿project_ID;user_ID;role;craft;createdAt;createdBy;modifiedAt;modifiedBy
+e65de488-73f4-4aeb-86b0-8e4e9f1a9a2a;sophia.davis@example.com;ACCOUNTING_MEMBER;;2022-03-01T00:00:00.000Z;user2;2022-03-01T00:00:00.000Z;user2
+e65de488-73f4-4aeb-86b0-8e4e9f1a9a2a;liam.wilson@example.com;EXTERNAL_VALIDATOR;Electric;2022-03-01T00:00:00.000Z;user2;2022-03-01T00:00:00.000Z;user2
+e65de488-73f4-4aeb-86b0-8e4e9f1a9a2a;benjamin.thompson@example.com;EXTERNAL_VALIDATOR;Woodwork;2022-03-01T00:00:00.000Z;user2;2022-03-01T00:00:00.000Z;user2
+c3b78da9-8f6b-4fe5-8f07-9773e9c8a354;john.smith@example.com;ACCOUNTING_MEMBER;;2022-03-01T00:00:00.000Z;user2;2022-03-01T00:00:00.000Z;user2
+c3b78da9-8f6b-4fe5-8f07-9773e9c8a354;emily.johnson@example.com;EXTERNAL_VALIDATOR;Electric;2022-03-01T00:00:00.000Z;user2;2022-03-01T00:00:00.000Z;user2

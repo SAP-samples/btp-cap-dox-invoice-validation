@@ -1,0 +1,6 @@
+﻿ID;name;company;createdAt;createdBy;modifiedAt;modifiedBy
+sophia.davis@example.com;Sophia Davis;SAP SE;2022-03-01T00:00:00.000Z;user1;2022-03-01T00:00:00.000Z;user1
+liam.wilson@example.com;Liam Wilson;SAP SE;2022-03-01T00:00:00.000Z;user1;2022-03-01T00:00:00.000Z;user1
+benjamin.thompson@example.com;Benjamin Thompson;SAP SE;2022-03-01T00:00:00.000Z;user1;2022-03-01T00:00:00.000Z;user1
+john.smith@example.com;John Smith;SAP SE;2022-03-01T00:00:00.000Z;user1;2022-03-01T00:00:00.000Z;user1
+emily.johnson@example.com;Emily Johnson;SAP SE;2022-03-01T00:00:00.000Z;user1;2022-03-01T00:00:00.000Z;user1

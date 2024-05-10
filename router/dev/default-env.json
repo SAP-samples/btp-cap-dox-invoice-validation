@@ -1,0 +1,19 @@
+{
+    "destinations": [
+        {
+            "name": "dox-invoice-validation-api",
+            "url": "http://localhost:4004",
+            "forwardAuthToken": true
+        },
+        {
+            "name": "dox-invoice-validation-ui",
+            "url": "http://localhost:5173",
+            "forwardAuthToken": true
+        },
+        {
+            "name": "dox-invoice-validation-snapshot",
+            "url": "http://localhost:4005",
+            "forwardAuthToken": true
+        }
+    ]
+}

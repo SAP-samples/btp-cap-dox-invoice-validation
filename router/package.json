@@ -1,0 +1,12 @@
+{
+    "name": "dox-mission-invoice-validation-router",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "node node_modules/@sap/approuter/approuter.js",
+        "start:local": "node node_modules/@sap/approuter/approuter.js --workingDir ./dev",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "@sap/approuter": "^14.1.2"
+    }
+}

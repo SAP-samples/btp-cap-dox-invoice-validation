@@ -1,0 +1,131 @@
+_schema-version: "3.3"
+ID: dox-mission-invoice-validation
+version: 1.0.0
+description: "DOX mission for invoice validation"
+parameters:
+    enable-parallel-deployments: true
+build-parameters:
+    before-all:
+        - builder: custom
+          commands:
+              - npm install --production --prefix api
+              - npm run build:cf --prefix api
+              - npm run build --prefix ui
+              #- npx -p @sap/cds-dk cds build --production
+
+modules:
+    - name: dox-invoice-validation
+      type: approuter.nodejs
+      path: router
+      parameters:
+          disk-quota: 1024M
+          memory: 1024M
+          health-check-type: process #http/port/process
+      requires:
+          - name: dox-invoice-validation-auth
+          - name: api
+            group: destinations
+            properties:
+                forwardAuthToken: true
+                strictSSL: false
+                name: dox-invoice-validation-api
+                url: ~{default-url}
+          - name: snapshot-service
+            group: destinations
+            properties:
+                forwardAuthToken: true
+                strictSSL: false
+                name: dox-invoice-validation-snapshot
+                url: ~{default-url}
+      build-parameters:
+          ignore: [./dev]
+          builder: custom
+          requires:
+              - name: dox-invoice-validation-api-srv
+          commands:
+              - npm install --production
+
+    - name: dox-invoice-validation-api-srv
+      type: nodejs
+      path: api/gen/srv
+      parameters:
+          buildpack: nodejs_buildpack
+      build-parameters:
+          builder: npm-ci
+      provides:
+          - name: api # required by consumers of CAP services (e.g. approuter)
+            properties:
+                #srv-url: ${default-url}
+                default-host: ${default-host} #usually generated using the <org-name>-<space-name>-<module-name>
+                default-domain: ${default-domain} #the default shared domain of the landscape
+                default-uri: ${default-uri} #composed by ${host}.${domain}
+                protocol: ${protocol} #usually defaults to "http"
+                default-url: ${default-url} # composed of ${protocol}://${default-uri}
+      requires:
+          - name: dox-invoice-validation-db
+          - name: dox-invoice-validation-auth
+          - name: dox-invoice-validation-api-dest
+          - name: dox-invoice-validation-s3-object-store
+
+    - name: dox-invoice-validation-db-deployer
+      type: hdb
+      path: api/gen/db
+      parameters:
+          buildpack: nodejs_buildpack
+      requires:
+          - name: dox-invoice-validation-db
+
+    - name: dox-invoice-validation-snapshot-service
+      type: python
+      path: snapshot-service/
+      parameters:
+          memory: 512M
+          disk-quota: 1022M
+      provides:
+          - name: snapshot-service
+            properties:
+                default-host: ${default-host}
+                default-domain: ${default-domain}
+                default-uri: ${default-uri}
+                protocol: ${protocol}
+                default-url: ${default-url}
+
+resources:
+    # ----------------------- HDI SERVICE ------------------------
+    - name: dox-invoice-validation-db
+      # ------------------------------------------------------------
+      type: com.sap.xs.hdi-container
+      parameters:
+          service: hana
+          service-plan: hdi-shared
+    # ----------------------- UAA SERVICE ------------------------
+    - name: dox-invoice-validation-auth
+      # ------------------------------------------------------------
+      type: org.cloudfoundry.managed-service
+      parameters:
+          service: xsuaa
+          service-plan: application
+          path: ./xs-security.json
+          config:
+              xsappname: dox-invoice-validation-${org}-${space}
+              tenant-mode: dedicated
+    # -------------------- DESTINATION SERVICE -------------------
+    - name: dox-invoice-validation-api-dest
+      # ------------------------------------------------------------
+      type: org.cloudfoundry.managed-service
+      parameters:
+          service: destination
+          service-plan: lite
+    # -------------------- AWS S3 SERVICE -------------------
+    - name: dox-invoice-validation-s3-object-store
+      # ------------------------------------------------------------
+      type: objectstore
+      parameters:
+          service: objectstore
+          service-plan: s3-standard
+    # -------------------- Application Logging -------------------
+    - name: dox-invoicing-logging
+      # ------------------------------------------------------------
+      type: application-logs
+      parameters:
+          service-plan: lite
