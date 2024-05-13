@@ -12,7 +12,7 @@ in the workflow to validate it further. As a side effect each correction and the
 For that _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
 —a service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
 and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)) is leveraged. The sample runs _entirely_ on BTP. Think of it as a separate extension to _SAP Central Invoice Management_ (CIM)
-or _OpenText Vendor Invoice Management_, rather than it trying to compete with the latter.
+or _OpenText Vendor Invoice Management_ (VIM), rather than it trying to compete with the latter.
 
 <!-- shows correctly with GitHub's markdown flavor -->
 > [!IMPORTANT]
