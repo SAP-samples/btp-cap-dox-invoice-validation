@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: btp-cap-dox-invoice-validation
-Upstream-Contact: ospo@sap.com
-Source: <https://github.com/sap-samples/YOUR-REPO-NAME>
+Upstream-Contact: julian.schambeck@sap.com
+Source: <https://github.com/sap-samples/btp-cap-dox-invoice-validation>
 Disclaimer: The code in this project may include calls to APIs ("API Calls") of
  SAP or third-party products or services developed outside of this project
  ("External Products").
