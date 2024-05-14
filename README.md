@@ -1,7 +1,6 @@
 # Facilitate Invoice Validation — leveraging Document Information Extraction
-<!--- Register repository https://api.reuse.software/register, then add REUSE badge:
-[![REUSE status](https://api.reuse.software/badge/github.com/SAP-samples/REPO-NAME)](https://api.reuse.software/info/github.com/SAP-samples/REPO-NAME)
--->
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP-samples/btp-cap-dox-invoice-validation)](https://api.reuse.software/info/github.com/SAP-samples/btp-cap-dox-invoice-validation)
+
 Invoice validation is often an opaque, manual and error-prone process. It involves editing invoice PDF files directly, or sending them back and forth via email between multiple parties—
 until it can finally be approved for payment.
 
