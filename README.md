@@ -31,7 +31,7 @@ Feel free to check out these links to get started working with the sample.
 - Intro
   - [Scenario](./docs/tutorial/1-intro/1-Scenario.md)
   - [Improvements](./docs/tutorial/1-intro/2-Improvements.md)
-  - [Interaction](./docs/tutorial/1-intro/3-Interactions)
+  - [Interaction](./docs/tutorial/1-intro/3-Interaction.md)
 - Setup
   - [Subaccount](./docs/tutorial/2-setup/1-Subaccount.md)
   - [Initial Deployment](./docs/tutorial/2-setup/3-InitialDeployment.md)
