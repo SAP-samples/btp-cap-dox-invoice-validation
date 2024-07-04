@@ -62,6 +62,7 @@ modules:
                 protocol: ${protocol} #usually defaults to "http"
                 default-url: ${default-url} # composed of ${protocol}://${default-uri}
       requires:
+          - name: dox-invoice-validation-dox
           - name: dox-invoice-validation-db
           - name: dox-invoice-validation-auth
           - name: dox-invoice-validation-api-dest
@@ -91,6 +92,13 @@ modules:
                 default-url: ${default-url}
 
 resources:
+    # ----------------------- DOX SERVICE ------------------------
+    - name: dox-invoice-validation-dox
+      # ------------------------------------------------------------
+      type: org.cloudfoundry.managed-service
+      parameters:
+          service: sap-document-information-extraction
+          service-plan: premium_edition
     # ----------------------- HDI SERVICE ------------------------
     - name: dox-invoice-validation-db
       # ------------------------------------------------------------
