@@ -1,24 +1,24 @@
 # Facilitate Invoice Validation — leveraging Document Information Extraction
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP-samples/btp-cap-dox-invoice-validation)](https://api.reuse.software/info/github.com/SAP-samples/btp-cap-dox-invoice-validation)
 
-Invoice validation is often an opaque, manual and error-prone process. It involves editing invoice PDF files directly, or sending them back and forth via email between multiple parties—
-until it can finally be approved for payment.
+Invoice validation is often an opaque, manual, and error-prone process. It involves editing invoice PDF files directly, or sending them back and forth via email between multiple parties—
+until the invoice can finally be approved for payment.
 
 This sample tries to alleviate some of those pain points. It presupposes a clearly defined validation workflow. More importantly,
-it simplifies and accelerates validation, allowing to quickly copy over entries from the original invoice, correct entries; and then forward the invoice to the next person in line
-in the workflow to validate it further. As a side effect each correction and the rationale behind it is documented over time.
+it simplifies and accelerates validation, allowing you to: copy over entries from the original invoice; correct entries; and then forward the invoice to the next person in line
+in the workflow to validate it further. As a side effect, each correction and the rationale behind it is documented over time.
 
-For that _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
-—a service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
-and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)) is leveraged. The sample runs _entirely_ on BTP. Think of it as a separate extension to _SAP Central Invoice Management_ (CIM)
+This invoice validation leverages _Document Information Extraction_ ([DOX](https://help.sap.com/docs/document-information-extraction/document-information-extraction/what-is-document-information-extraction?locale=en-US))
+ —a service on the _Business Technology Platform_ ([BTP](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-business-technology-platform?locale=en-US))—
+and the _Cloud Programming Model_ ([CAP](https://cap.cloud.sap/docs/)). The sample runs entirely on BTP. Think of it as a separate extension to _SAP Central Invoice Management_ (CIM)
 or _OpenText Vendor Invoice Management_ (VIM), rather than it trying to compete with the latter.
 
 <!-- shows correctly with GitHub's markdown flavor -->
 > [!IMPORTANT]
 > The sample was built on AWS infrastructure on BTP. Therefore, we went with the Amazon S3 variant
 > of the BTP Object Store service, while the CAP backend talks to the S3 via the AWS Client S3 SDK. Generally, the sample
-> can also be run on GCP or Azure, if you slightly adjust the part of the code, that talks to the Object Store, and use
-> the according store variant.
+> can also be run on GCP or Azure, if you slightly adjust the part of the code that talks to the Object Store, and use
+> the corresponding store variant.
 
 <p align="center">
     <img src="./docs/tutorial/1-intro/images/Solution_Diagram.png" alt="architecture diagram" />
