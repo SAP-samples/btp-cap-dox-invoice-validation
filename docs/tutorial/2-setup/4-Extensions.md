@@ -9,7 +9,7 @@ npm install -g @sap/cds-dk typescript ts-node
 
 2. The remaining packages you can install directly in your project folder with:
 ```
-npm run setup --legacy-peer-deps
+npm run setup
 ```
 
 3. Your CAP API, which is now going to be running locally, still relies on the same BTP services as during deployment. Therefore, you need to bind them. The suffixes after the

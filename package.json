@@ -9,7 +9,7 @@
         "watch:ui": "npm-run-all --parallel start:vite-server start:router",
         "start:vite-server": "npm --prefix ./ui run dev",
         "start:router": "npm --prefix ./router run start:local",
-        "setup": "npm install && npm --prefix ./ui install && npm --prefix ./router install && npm --prefix ./api install && npm --prefix ./api run generate:types",
+        "setup": "npm install && npm --prefix ./ui install --legacy-peer-deps && npm --prefix ./router install && npm --prefix ./api install && npm --prefix ./api run generate:types",
         "assemble:types": "npm --prefix ./api run generate:types &&  cp -r api/srv/@cds-models/. ui/src/types/entities && find ./ui/src/types/entities -name index.js -delete",
         "test": "echo \"Error: no test specified\" && exit 1",
         "prepare": "husky install",
