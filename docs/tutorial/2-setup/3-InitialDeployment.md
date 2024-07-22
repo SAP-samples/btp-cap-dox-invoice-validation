@@ -11,19 +11,27 @@ To manage multiple Node versions you can use [NVM](https://github.com/nvm-sh/nvm
 node --version
 ```
 
-Now onwards to doing the actual deployment. First, clone the git repository:
+Now onwards to doing the actual deployment.
+
+1. First, clone the git repository:
 ```
 git clone https://github.com/SAP-samples/btp-cap-dox-invoice-validation.git
 
 cd btp-cap-dox-invoice-validation 
 ```
 
-Then login to your subaccount and space with: 
+2. Install the required packages:
+```
+npm install -g @sap/cds-dk typescript ts-node
+npm run setup
+```
+
+3. Then, login to your subaccount and space with:
 ```
 cf login
 ```
 
-Next, issue the following command (while being at root level of your project directory) to _build_ and _deploy_ the whole app at once to your subaccount:
+4. Next, issue the following command (while being at root level of your project directory) to _build_ and _deploy_ the whole app at once to your subaccount:
 ```
 npm run deploy
 ```
