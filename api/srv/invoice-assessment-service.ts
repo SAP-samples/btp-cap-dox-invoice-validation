@@ -2,8 +2,10 @@ import cds from "@sap/cds";
 import FormData from "form-data";
 import { Request, Service } from "@sap/cds/apis/services";
 import xsenv from "@sap/xsenv";
-import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import * as fs from "fs";
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, PutObjectCommandOutput } from "@aws-sdk/client-s3";
+import fs from "fs";
+import path from "path";
+
 import {
     Projects_Users,
     Users,
@@ -109,6 +111,9 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
 
         this.after(["CREATE", "UPDATE"], "Deductions", this.recordLatestDeduction);
         this.after(["CREATE", "UPDATE"], "Retentions", this.recordLatestRetention);
+
+        // one-time upload of sample invoices if not there yet
+        this.uploadSamplesS3();
     }
 
     private getUserInfo = async (req: Request) => {
@@ -298,6 +303,32 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         }
         return;
     };
+
+    private async uploadSamplesS3() {
+        // the sample invoices lie here
+        const dir = path.join(__dirname, "samples");
+        const files = await fs.promises.readdir(dir).catch((err) => console.log("Could not read sample invoices to upload. DOX analysis might expect them to be in S3.", err));
+        if (!Array.isArray(files)) return;
+        // cut off '.pdf'
+        let id = files[0].split(".")[0];
+        const invoice = await SELECT.one.from(Invoices).where({ invoiceID: id });
+
+        let uploads: Promise<PutObjectCommandOutput>[];
+        // sanity check, use job id as indicator if already in bucket
+        if (!(invoice && invoice.doxPositionsJobID)) {
+            const s3 = this.getS3Client();
+            uploads = files.map((filename) => {
+                id = filename.split(".")[0];
+                const cmd = new PutObjectCommand({
+                    Bucket: BUCKET_S3,
+                    Key: id + "/" + filename,
+                    Body: fs.readFileSync(path.join(dir, filename))
+                });
+                return s3.send(cmd);
+            });
+        }
+        return Promise.all(uploads).catch((err) => console.log("One time upload of sample invoices failed", err))
+    }
 
     private deleteFileFromS3 = async (req: Request) => {
         const { s3BucketKey, documentId } = req.data;
