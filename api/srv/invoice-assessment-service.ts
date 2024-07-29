@@ -2,8 +2,10 @@ import cds from "@sap/cds";
 import FormData from "form-data";
 import { Request, Service } from "@sap/cds/apis/services";
 import xsenv from "@sap/xsenv";
-import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import * as fs from "fs";
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, PutObjectCommandOutput } from "@aws-sdk/client-s3";
+import fs from "fs";
+import path from "path";
+
 import {
     Projects_Users,
     Users,
@@ -25,7 +27,12 @@ import log from "./logging";
 
 const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION";
 
-const BUCKET_S3: string = "hcp-79ebb5dc-9495-4458-810c-4826afb0b437";
+const s3: any = xsenv.getServices(({ objectstore: { label: "objectstore" } })).objectstore;
+const BUCKET_S3: string = s3.bucket;
+const ACCESS_KEY_ID_S3: string = s3.access_key_id;
+const ACCESS_KEY_SECRET_S3: string = s3.secret_access_key;
+const REGION_S3: string = s3.region;
+
 
 export class InvoiceAssessmentService extends cds.ApplicationService {
     async init() {
@@ -104,6 +111,9 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
 
         this.after(["CREATE", "UPDATE"], "Deductions", this.recordLatestDeduction);
         this.after(["CREATE", "UPDATE"], "Retentions", this.recordLatestRetention);
+
+        // one-time upload of sample invoices if not there yet
+        this.uploadSamplesS3();
     }
 
     private getUserInfo = async (req: Request) => {
@@ -294,6 +304,32 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return;
     };
 
+    private async uploadSamplesS3() {
+        // the sample invoices lie here
+        const dir = path.join(__dirname, "samples");
+        const files = await fs.promises.readdir(dir).catch((err) => console.log("Could not read sample invoices to upload. DOX analysis might expect them to be in S3.", err));
+        if (!Array.isArray(files)) return;
+        // cut off '.pdf'
+        let id = files[0].split(".")[0];
+        const invoice = await SELECT.one.from(Invoices).where({ invoiceID: id });
+
+        let uploads: Promise<PutObjectCommandOutput>[];
+        // sanity check, use job id as indicator if already in bucket
+        if (!(invoice && invoice.doxPositionsJobID)) {
+            const s3 = this.getS3Client();
+            uploads = files.map((filename) => {
+                id = filename.split(".")[0];
+                const cmd = new PutObjectCommand({
+                    Bucket: BUCKET_S3,
+                    Key: id + "/" + filename,
+                    Body: fs.readFileSync(path.join(dir, filename))
+                });
+                return s3.send(cmd);
+            });
+        }
+        return Promise.all(uploads).catch((err) => console.log("One time upload of sample invoices failed", err))
+    }
+
     private deleteFileFromS3 = async (req: Request) => {
         const { s3BucketKey, documentId } = req.data;
         const s3Client = this.getS3Client();
@@ -308,13 +344,9 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     };
 
     private getS3Client = () => {
-        const services = xsenv.getServices({ objectstore: { label: "objectstore" } });
-        const s3 = services.objectstore;
         return new S3Client({
-            // @ts-ignore
-            region: s3.region,
-            // @ts-ignore
-            credentials: { accessKeyId: s3.access_key_id, secretAccessKey: s3.secret_access_key }
+            region: REGION_S3,
+            credentials: { accessKeyId: ACCESS_KEY_ID_S3, secretAccessKey: ACCESS_KEY_SECRET_S3 }
         });
     };
 

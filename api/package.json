@@ -27,9 +27,9 @@
         "start": "cds-serve",
         "watch": "cds-ts watch --profile hybrid",
         "build:cf": "npm run build:cds && npm run build:ts && npm run cleanup:ts",
-        "build:ts": "tsc && cp -r ./srv/@cds-models ./gen/srv/srv",
+        "build:ts": "tsc",
         "build:cds": "cds build --production",
-        "cleanup:ts": "npx rimraf@5.0.1 --glob -v \"./gen/srv/srv/**/*.ts\"",
+        "cleanup:ts": "npx --yes rimraf@5.0.1 --glob -v \"./gen/srv/srv/**/*.ts\"",
         "deploy": "cds deploy -2 hana:dox-invoice-validation-db --profile production",
         "generate:types": "npx @cap-js/cds-typer@0.6.0 ./srv/invoice-assessment-service.cds ./db/invoice-assessment.cds --outputDirectory ./srv/@cds-models",
         "test": "jest"

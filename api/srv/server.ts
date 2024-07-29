@@ -2,5 +2,5 @@ import cds from "@sap/cds";
 const express = require("express");
 
 cds.on("bootstrap", (app) => {
-    app.use(express.static(__dirname + "/files"));
+    app.use("/samples/", express.static(__dirname + "/samples"));
 });
