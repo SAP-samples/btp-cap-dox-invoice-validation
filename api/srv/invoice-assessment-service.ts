@@ -25,7 +25,12 @@ import log from "./logging";
 
 const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION";
 
-const BUCKET_S3: string = "hcp-79ebb5dc-9495-4458-810c-4826afb0b437";
+const s3: any = xsenv.getServices(({ objectstore: { label: "objectstore" } })).objectstore;
+const BUCKET_S3: string = s3.bucket;
+const ACCESS_KEY_ID_S3: string = s3.access_key_id;
+const ACCESS_KEY_SECRET_S3: string = s3.secret_access_key;
+const REGION_S3: string = s3.region;
+
 
 export class InvoiceAssessmentService extends cds.ApplicationService {
     async init() {
@@ -308,13 +313,9 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     };
 
     private getS3Client = () => {
-        const services = xsenv.getServices({ objectstore: { label: "objectstore" } });
-        const s3 = services.objectstore;
         return new S3Client({
-            // @ts-ignore
-            region: s3.region,
-            // @ts-ignore
-            credentials: { accessKeyId: s3.access_key_id, secretAccessKey: s3.secret_access_key }
+            region: REGION_S3,
+            credentials: { accessKeyId: ACCESS_KEY_ID_S3, secretAccessKey: ACCESS_KEY_SECRET_S3 }
         });
     };
 
