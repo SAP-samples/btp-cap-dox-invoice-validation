@@ -5,4 +5,4 @@ have deployed the sample, and any BTP services that it relies on, to your own su
 
 Hopefully, you see now, how the DOX service further facilitates the invoice validation, e.g., you can copy over position values from the invoice automatically to quickly start correcting the position.
 
-Feel free to also revisit the [teaser video](https://video.sap.com/media/t/1_cma51zr3) for this sample.
+Feel free to also revisit the [teaser video](https://sapvideo.cfapps.eu10-004.hana.ondemand.com/?entry_id=1_cma51zr3) for this sample.
