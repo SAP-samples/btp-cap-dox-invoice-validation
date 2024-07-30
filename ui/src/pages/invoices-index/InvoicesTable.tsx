@@ -15,7 +15,7 @@ import { spacing, useI18nBundle } from "@ui5/webcomponents-react-base";
 import "@ui5/webcomponents-icons/dist/alert.js";
 
 import { Invoices, FlowStatuses, Roles } from "@entities";
-import { CSSProperties, useEffect, useState, useMemo } from "react";
+import { CSSProperties, useMemo } from "react";
 import {
     formatDate,
     WORKFLOW_STATUS_I18N_KEY_MAPPING,
@@ -23,45 +23,24 @@ import {
     ROLE_DISPLAY_STRING_I18N_MAPPING
 } from "@/formatters";
 import Surface from "@/custom/Surface";
-import { BASE_URL_CAP } from "@/constants";
 
 export default function InvoicesTable({
     invoices,
     titleKey,
     noDataKey,
     sortedBy,
-    styles = {}
+    styles = {},
+    extractionState
 }: {
     invoices: Invoices;
     titleKey: string;
     noDataKey: string;
     sortedBy: string;
     styles?: CSSProperties;
+    extractionState: { [key: string]: boolean };
 }) {
     const nav = useNavigate();
     const i18n = useI18nBundle("app");
-
-    const [extractionState, setExtractionState] = useState<{ [key: string]: boolean }>({});
-
-    useEffect(() => {
-        uploadAndFetchAllDocuments().catch(console.log);
-        checkExtractionStatusesOfAllInvoices().catch(console.log);
-    }, [invoices]);
-
-    const uploadAndFetchAllDocuments = async () =>
-        await fetch(`${BASE_URL_CAP}/checkAllDocumentsExtractions`, {
-            method: "POST",
-            body: JSON.stringify({}),
-            headers: new Headers({ "content-type": "application/json" })
-        });
-
-    async function checkExtractionStatusesOfAllInvoices() {
-        const res = await (await fetch(`${BASE_URL_CAP}/areInvoiceExtractionsCompleted()`, { method: "GET" })).json();
-        if (Object.values(res.value).includes(false)) {
-            setTimeout(checkExtractionStatusesOfAllInvoices, 5000);
-        }
-        setExtractionState(res.value);
-    }
 
     const columns: Array<AnalyticalTableColumnDefinition> = useMemo(() => {
         return [
