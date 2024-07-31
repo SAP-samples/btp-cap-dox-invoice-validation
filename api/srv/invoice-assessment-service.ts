@@ -1,6 +1,5 @@
-import cds from "@sap/cds";
+import cds, { Request, Service } from "@sap/cds";
 import FormData from "form-data";
-import { Request, Service } from "@sap/cds/apis/services";
 import xsenv from "@sap/xsenv";
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, PutObjectCommandOutput } from "@aws-sdk/client-s3";
 import fs from "fs";

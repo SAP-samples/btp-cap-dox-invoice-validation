@@ -15,7 +15,7 @@
         "deploy": "npm run build && cf deploy mta_archives/dox-invoice-validation.mtar"
     },
     "engines": {
-        "node": "^18"
+        "node": "^20"
     },
     "husky": {
         "hooks": {
@@ -23,6 +23,7 @@
         }
     },
     "devDependencies": {
+        "@cap-js/cds-types": "^0.6.3",
         "@types/node": "^20.12.3",
         "husky": "^8.0.0",
         "npm-run-all": "^4.1.5",

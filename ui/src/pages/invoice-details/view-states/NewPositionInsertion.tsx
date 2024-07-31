@@ -13,9 +13,9 @@ import {
     ValueState,
     Card,
     Toolbar,
-    ButtonDomRef,
-    MessageStrip
+    ButtonDomRef
 } from "@ui5/webcomponents-react";
+import { MessageStrip } from "@ui5/webcomponents-react";
 import { spacing, useI18nBundle } from "@ui5/webcomponents-react-base";
 import { v4 as uuidv4 } from "uuid";
 import CurrencyFormat from "react-currency-format";
@@ -336,6 +336,7 @@ export default function NewPositionInsertion({
             </Table>
             {showMessageStrip && (
                 <MessageStrip
+                    // @ts-ignore
                     design="Warning"
                     onClose={() => setShowMessageStrip(false)}
                     style={{ width: 400, marginTop: 10 }}
