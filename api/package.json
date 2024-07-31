@@ -1,7 +1,6 @@
 {
     "name": "dox-mission-invoice-validation-api",
     "version": "1.0.0",
-    "license": "UNLICENSED",
     "private": true,
     "dependencies": {
         "@aws-sdk/client-s3": "^3.398.0",
