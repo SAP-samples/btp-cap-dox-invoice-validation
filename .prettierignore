@@ -1,0 +1,8 @@
+*.js
+**/.git
+**/node_modules
+package-lock.json
+api/srv/intermediary
+# Ignore artifacts:
+build
+coverage

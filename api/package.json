@@ -10,10 +10,10 @@
         "@sap/xsenv": "^4.0.0",
         "@sap/xssec": "^3.2.17",
         "@types/sap__xsenv": "^3.3.0",
+        "cf-nodejs-logging-support": "^7.3.0",
         "express": "^4.18.2",
         "hdb": "^0.19.0",
-        "passport": "^0.6.0",
-        "cf-nodejs-logging-support": "^7.3.0"
+        "passport": "^0.6.0"
     },
     "devDependencies": {
         "@cap-js/cds-typer": "^0.6.0",
@@ -27,7 +27,7 @@
         "watch": "cds-ts watch --profile hybrid",
         "build:cf": "npm run build:cds && npm run build:ts && npm run cleanup:ts",
         "build:ts": "tsc",
-        "build:cds": "cds build --production",
+        "build:cds": "cds-ts build --production",
         "cleanup:ts": "npx --yes rimraf@5.0.1 --glob -v \"./gen/srv/srv/**/*.ts\"",
         "deploy": "cds deploy -2 hana:dox-invoice-validation-db --profile production",
         "generate:types": "npx @cap-js/cds-typer@0.6.0 ./srv/invoice-assessment-service.cds ./db/invoice-assessment.cds --outputDirectory ./srv/@cds-models",
