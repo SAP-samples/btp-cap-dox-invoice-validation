@@ -2,10 +2,8 @@ import { useEffect, useState, useContext } from "react";
 import { Page } from "@ui5/webcomponents-react";
 
 import { Invoices } from "@entities";
-import InvoicesTable from "./InvoicesTable";
-import Surface from "@/custom/Surface";
+import InvoicesTables from "./InvoicesTables";
 import { UserContext } from "@/contexts/UserContext";
-import { spacing } from "@ui5/webcomponents-react-base";
 
 export default function InvoicesIndex() {
     const [invoices, setInvoices] = useState<Invoices>([]);
@@ -31,21 +29,7 @@ export default function InvoicesIndex() {
 
     return (
         <Page disableScrolling style={{ paddingTop: "1rem", paddingBottom: "1rem" }}>
-            <Surface>
-                <InvoicesTable
-                    invoices={assignedInvoices}
-                    titleKey="invoicesToBeValidated"
-                    noDataKey="notCVOfAnyInvoice"
-                    sortedBy="dueDate"
-                />
-                <InvoicesTable
-                    invoices={otherInvoices}
-                    titleKey="otherInvoices"
-                    noDataKey="noOtherInvoices"
-                    sortedBy="projectName"
-                    styles={{ ...spacing.sapUiMediumMarginTop }}
-                />
-            </Surface>
+            <InvoicesTables assignedInvoices={assignedInvoices} otherInvoices={otherInvoices}/>
         </Page>
     );
 }
