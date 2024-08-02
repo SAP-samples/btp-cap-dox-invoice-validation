@@ -115,7 +115,7 @@ export default function NewRetention({
                     <TableCell>
                         <Input
                             style={{ maxWidth: 200 }}
-                            value={insertedRetention.reason}
+                            value={insertedRetention.reason as string}
                             onInput={(event: any) =>
                                 setInsertedRetention({
                                     ...insertedRetention,

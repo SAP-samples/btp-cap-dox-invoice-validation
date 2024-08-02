@@ -21,7 +21,7 @@ service InvoiceAssessmentService @(requires: 'authenticated-user') {
     @readonly
     entity FlowStatuses        as projection on dox.FlowStatuses;
 
-    type User {
+    type UserInfo {
         id           : String;
         givenName    : String;
         familyName   : String;
@@ -37,44 +37,42 @@ service InvoiceAssessmentService @(requires: 'authenticated-user') {
     }
 
     type Coordinates : {
-  x : Double;
-  y : Double;
-  w : Double;
-  h : Double;
-};
+        x : Double;
+        y : Double;
+        w : Double;
+        h : Double;
+    };
 
-
-type LineItem : {
-  name : String;
-  category : String;
-  value : String;
-  rawValue : String;
-  type : String;
-  page : Integer;
-  confidence : Double;
-  coordinates : Coordinates;
-  model: String;
-  label : String;
-};
-
+    type LineItem    : {
+        name        : String;
+        category    : String;
+        value       : String;
+        rawValue    : String;
+        type        : String;
+        page        : Integer;
+        confidence  : Double;
+        coordinates : Coordinates;
+        model       : String;
+        label       : String;
+    };
 
     // FUNCTIONS
 
-    function getUserInfo()                                                                                 returns User;
-    function getPdfBytesByInvoiceID(invoiceID : String)                                                    returns LargeString;
-    function getPdfBytesByKey(s3BucketKey : String)                                                returns LargeString;
-    function getFileFromS3(s3BucketKey : String)                                                           returns LargeString;
-    function getPositionsFromDOX(id: String)                                                               returns String;
-    function getLineItemsFromDOX(id: String)                                                               returns String;
-    function areInvoiceExtractionsCompleted()                                                              returns String;
-    
+    function getUserInfo()                                                                            returns UserInfo;
+    function getPdfBytesByInvoiceID(invoiceID : String)                                               returns LargeString;
+    function getPdfBytesByKey(s3BucketKey : String)                                                   returns LargeString;
+    function getFileFromS3(s3BucketKey : String)                                                      returns LargeString;
+    function getPositionsFromDOX(id : String)                                                         returns String;
+    function getLineItemsFromDOX(id : String)                                                         returns String;
+    function areInvoiceExtractionsCompleted()                                                         returns String;
+
 
     type ReturnMessage {
         message : String;
-        data: String;
+        data    : String;
     }
 
-    type FlowStatus {
+    type NewFlowStatus {
         ID         : String;
         descriptor : dox.WorkflowStatus;
         createdAt  : Date;
@@ -82,20 +80,20 @@ type LineItem : {
 
     // ACTIONS
 
-    action   setCV(projectId : String, idNewCV : String, invoiceId : String)                               returns {
+    action   setCV(projectId : String, idNewCV : String, invoiceId : String)                          returns {
         message : String;
-        newFlowStatus : FlowStatus;
+        newFlowStatus : NewFlowStatus;
     };
 
     action   acceptOrRejectInvoice(status : dox.WorkflowStatus, invoiceId : String)                   returns {
         message : String;
-        newFlowStatus : FlowStatus;
+        newFlowStatus : NewFlowStatus;
     };
 
     action   assignProjectRole(projectId : String, userId : String, role : dox.Roles, craft : String) returns ReturnMessage;
-    action   uploadFileToS3(invoiceID : String, fileName : String, file : LargeBinary)                     returns Documents;
-    action   uploadToDOXToGetPositions(id: String)                                                         returns String;
-    action   uploadToDOXToGetLineItems(id: String)                                                         returns String;
-    action   deleteFileFromS3(s3BucketKey : String, documentId : String)                                   returns ReturnMessage;
-    action   checkAllDocumentsExtractions()                                                                returns String;
+    action   uploadFileToS3(invoiceID : String, fileName : String, file : LargeBinary)                returns Documents;
+    action   uploadToDOXToGetPositions(id : String)                                                   returns String;
+    action   uploadToDOXToGetLineItems(id : String)                                                   returns String;
+    action   deleteFileFromS3(s3BucketKey : String, documentId : String)                              returns ReturnMessage;
+    action   checkAllDocumentsExtractions()                                                           returns String;
 }
