@@ -10,7 +10,6 @@
         "@sap/xsenv": "^5.2.0",
         "@sap/xssec": "^4.2.1",
         "@types/sap__xsenv": "^3.3.2",
-        "better-sqlite3": "^11.1.2",
         "cf-nodejs-logging-support": "^7.3.0",
         "express": "^4.19.2",
         "hdb": "^0.19.8",
@@ -18,9 +17,7 @@
     },
     "devDependencies": {
         "@cap-js/sqlite": "^1.7.3",
-        "@types/jest": "^29.5.12",
-        "jest": "^29.7.0",
-        "ts-jest": "^29.2.3"
+        "mocha": "^10.7.0"
     },
     "scripts": {
         "start": "cds-serve",
@@ -31,7 +28,7 @@
         "cleanup:ts": "npx --yes rimraf@5.0.1 --glob -v \"./gen/srv/srv/**/*.ts\"",
         "deploy": "cds deploy -2 hana:dox-invoice-validation-db --profile production",
         "generate:types": "npx --yes @cap-js/cds-typer@0.24.0 ./srv/invoice-assessment-service.cds ./db/invoice-assessment.cds --outputDirectory ./srv/@cds-models",
-        "test": "jest"
+        "test": "CDS_TEST_ENV_CHECK=y mocha"
     },
     "cds": {
         "requires": {
@@ -42,20 +39,5 @@
     },
     "imports": {
         "#cds-models/*": "./srv/@cds-models/*/index.js"
-    },
-    "jest": {
-        "preset": "ts-jest/presets/default",
-        "globalSetup": "./tests/setup.ts",
-        "testEnvironment": "node",
-        "testTimeout": 10000,
-        "testMatch": [
-            "<rootDir>/tests/*.test.(js|ts)"
-        ],
-        "transform": {
-            "^.+\\.ts$": "ts-jest"
-        },
-        "modulePathIgnorePatterns": [
-            "<rootDir>/gen"
-        ]
     }
 }

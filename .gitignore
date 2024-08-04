@@ -173,5 +173,5 @@ tags
 router/dev/default-services.json
 *.mta
 mta_archives/
-api/tests/requests.http
+requests.http
 api/srv/@cds-models/
