@@ -1,38 +1,26 @@
 {
     "name": "dox-mission-invoice-validation",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "private": true,
     "scripts": {
         "watch": "npm-run-all -r --parallel watch:api watch:ui",
         "watch:api": "npm --prefix ./api run watch",
         "watch:ui": "npm-run-all --parallel start:vite-server start:router",
         "start:vite-server": "npm --prefix ./ui run dev",
         "start:router": "npm --prefix ./router run start:local",
-        "setup": "npm install && npm --prefix ./ui install --legacy-peer-deps && npm --prefix ./router install && npm --prefix ./api install && npm --prefix ./api run generate:types",
+        "setup": "npm install && npm --prefix ./ui install --force && npm --prefix ./router install && npm --prefix ./api install && npm --prefix ./api run generate:types",
         "assemble:types": "npm --prefix ./api run generate:types &&  cp -r api/srv/@cds-models/. ui/src/types/entities && find ./ui/src/types/entities -name index.js -delete",
-        "test": "echo \"Error: no test specified\" && exit 1",
         "prepare": "husky install",
         "build": "mbt build -p=cf -t=./mta_archives --mtar=dox-invoice-validation.mtar",
         "deploy": "npm run build && cf deploy mta_archives/dox-invoice-validation.mtar"
     },
     "engines": {
-        "node": "^18"
+        "node": "^20"
     },
-    "husky": {
-        "hooks": {
-            "pre-commit": "pretty-quick --staged"
-        }
-    },
-    "author": "",
-    "license": "ISC",
     "devDependencies": {
-        "@sap-cloud-sdk/generator": "^3.11.0",
-        "@sap-cloud-sdk/openapi-generator": "^3.11.0",
+        "@cap-js/cds-types": "^0.6.3",
         "@types/node": "^20.12.3",
-        "husky": "^8.0.0",
         "npm-run-all": "^4.1.5",
-        "prettier": "2.8.8",
-        "pretty-quick": "^3.1.3"
+        "prettier": "3.3.3"
     }
 }

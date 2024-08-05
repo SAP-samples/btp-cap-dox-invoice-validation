@@ -5,10 +5,10 @@ import "react-pdf/dist/esm/Page/TextLayer.css";
 
 import { PdfBytes } from "./InvoiceDetails";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.js", import.meta.url).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
 const optionsForDocument = {
-    //when experiencing problems with pdf-js, try commenting the following line
+    // when experiencing problems with pdf-js, try commenting the following line
     verbosity: pdfjs.VerbosityLevel.ERRORS
 };
 

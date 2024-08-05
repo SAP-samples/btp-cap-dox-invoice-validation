@@ -8,10 +8,9 @@ build-parameters:
     before-all:
         - builder: custom
           commands:
-              - npm install --production --prefix api
+              - npm install --omit=dev --prefix api
               - npm run build:cf --prefix api
               - npm run build --prefix ui
-              #- npx -p @sap/cds-dk cds build --production
 
 modules:
     - name: dox-invoice-validation
@@ -43,7 +42,7 @@ modules:
           requires:
               - name: dox-invoice-validation-api-srv
           commands:
-              - npm install --production
+              - npm install --omit=dev
 
     - name: dox-invoice-validation-api-srv
       type: nodejs
@@ -51,11 +50,10 @@ modules:
       parameters:
           buildpack: nodejs_buildpack
       build-parameters:
-          builder: npm-ci
+          builder: npm
       provides:
           - name: api # required by consumers of CAP services (e.g. approuter)
             properties:
-                #srv-url: ${default-url}
                 default-host: ${default-host} #usually generated using the <org-name>-<space-name>-<module-name>
                 default-domain: ${default-domain} #the default shared domain of the landscape
                 default-uri: ${default-uri} #composed by ${host}.${domain}
