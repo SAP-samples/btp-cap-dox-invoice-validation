@@ -32,7 +32,6 @@ const ACCESS_KEY_ID_S3: string = s3.access_key_id;
 const ACCESS_KEY_SECRET_S3: string = s3.secret_access_key;
 const REGION_S3: string = s3.region;
 
-
 export class InvoiceAssessmentService extends cds.ApplicationService {
     async init() {
         this.on("DELETE", "Projects_Users", async (req: Request, next) => {
@@ -352,13 +351,13 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     private async uploadSamplesS3() {
         // the sample invoices lie here
         const dir = path.join(__dirname, "samples");
-        const files = await fs.promises.readdir(dir).catch((err) => console.log("Could not read sample invoices to upload. DOX analysis might expect them to be in S3.", err));
-        if (!Array.isArray(files)) return;
+        const files = await fs.promises.readdir(dir).catch((err) => console.log("Expected directory 'samples' with sample invoices, but not found.", err));
+        if (!Array.isArray(files) || Array.isArray(files) && files.length === 0) return;
         // cut off '.pdf'
         let id = files[0].split(".")[0];
         const invoice = await SELECT.one.from(Invoices).where({ invoiceID: id });
 
-        let uploads: Promise<PutObjectCommandOutput>[];
+        let uploads: Promise<PutObjectCommandOutput>[] = [];
         // sanity check, use job id as indicator if already in bucket
         if (!(invoice && invoice.doxPositionsJobID)) {
             const s3 = this.getS3Client();
@@ -372,7 +371,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
                 return s3.send(cmd);
             });
         }
-        return Promise.all(uploads).catch((err) => console.log("One time upload of sample invoices failed", err))
+        return Promise.all(uploads).catch((err) => console.log("One-time upload to S3 failed", err));
     }
 
     private deleteFileFromS3 = async (req: Request) => {
@@ -498,9 +497,6 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     private checkAllDocumentsExtractions = async () => {
         if (this.currentlyCheckingDocumentExtractions != 0) return;
         this.currentlyCheckingDocumentExtractions++;
-        /* cds.run(`
-                CREATE COLLECTION "${Date.now()}";
-                `) */
         this.checkAllDocumentsExtractionsBackgroundJob();
         const invoices: { invoiceID?: string; doxPositionsJobID?: string; doxLineItemsJobID?: string }[] =
             await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID, doxLineItemsJobID }`);

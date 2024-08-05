@@ -15,10 +15,6 @@
         "hdb": "^0.19.8",
         "passport": "^0.7.0"
     },
-    "devDependencies": {
-        "@cap-js/sqlite": "^1.7.3",
-        "mocha": "^10.7.0"
-    },
     "scripts": {
         "start": "cds-serve",
         "watch": "cds-ts watch --profile hybrid",
@@ -27,8 +23,7 @@
         "build:cds": "cds-ts build --production",
         "cleanup:ts": "npx --yes rimraf@5.0.1 --glob -v \"./gen/srv/srv/**/*.ts\"",
         "deploy": "cds deploy -2 hana:dox-invoice-validation-db --profile production",
-        "generate:types": "npx --yes @cap-js/cds-typer@0.24.0 ./srv/invoice-assessment-service.cds ./db/invoice-assessment.cds --outputDirectory ./srv/@cds-models",
-        "test": "CDS_TEST_ENV_CHECK=y mocha"
+        "generate:types": "npx --yes @cap-js/cds-typer@0.24.0 ./srv/invoice-assessment-service.cds ./db/invoice-assessment.cds --outputDirectory ./srv/@cds-models"
     },
     "cds": {
         "requires": {

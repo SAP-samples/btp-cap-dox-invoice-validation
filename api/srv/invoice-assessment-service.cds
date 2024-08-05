@@ -1,7 +1,7 @@
 using {dox} from '../db/invoice-assessment';
 
 
-service InvoiceAssessmentService @(requires: 'authenticated-user') {
+service InvoiceAssessmentService {
     @readonly
     entity Projects            as projection on dox.Projects;
 
