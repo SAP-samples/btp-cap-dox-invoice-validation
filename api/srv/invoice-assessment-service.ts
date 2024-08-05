@@ -1,7 +1,13 @@
 import cds, { Request, Service } from "@sap/cds";
 import FormData from "form-data";
 import xsenv from "@sap/xsenv";
-import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, PutObjectCommandOutput } from "@aws-sdk/client-s3";
+import {
+    S3Client,
+    GetObjectCommand,
+    PutObjectCommand,
+    DeleteObjectCommand,
+    PutObjectCommandOutput
+} from "@aws-sdk/client-s3";
 import fs from "fs";
 import path from "path";
 
@@ -26,7 +32,7 @@ import log from "./logging";
 
 const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION";
 
-const s3: any = xsenv.getServices(({ objectstore: { label: "objectstore" } })).objectstore;
+const s3: any = xsenv.getServices({ objectstore: { label: "objectstore" } }).objectstore;
 const BUCKET_S3: string = s3.bucket;
 const ACCESS_KEY_ID_S3: string = s3.access_key_id;
 const ACCESS_KEY_SECRET_S3: string = s3.secret_access_key;
@@ -137,51 +143,55 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
             projectRoles: projectRoles
         };
     };
-    
+
     private getDoxSchemaForPositionExtraction = async () => {
         const doxConnection = await this.getDoxConnection();
         const doxSchemas = (await doxConnection.send("GET", "/schemas?clientId=default")).schemas;
-        return doxSchemas.filter((schema:any) => schema.name === "invoicePositions");
-    }
+        return doxSchemas.filter((schema: any) => schema.name === "invoicePositions");
+    };
 
     private isDoxSchemaExisting = async () => {
         return (await this.getDoxSchemaForPositionExtraction()).length > 0;
-    }
+    };
 
     private createDoxSchema = async () => {
-        if (await this.isDoxSchemaExisting()) return
+        if (await this.isDoxSchemaExisting()) return;
         const doxConnection = await this.getDoxConnection();
         const schema = {
-            "clientId": "default",
-            "name": "invoicePositions",
-            "schemaDescription": "Schema to extract the positions of an invoice",
-            "documentType": "custom",
-            "documentTypeDescription": ""
-        }
-        const doxResponse: any =
-            await doxConnection.send("POST", "/schemas", schema);
+            clientId: "default",
+            name: "invoicePositions",
+            schemaDescription: "Schema to extract the positions of an invoice",
+            documentType: "custom",
+            documentTypeDescription: ""
+        };
+        const doxResponse: any = await doxConnection.send("POST", "/schemas", schema);
         const schemaId = doxResponse.id;
-        const payloadToAddPositionLineItem:{"headerFields": [], lineItemFields: {}[]} = { 
-            "headerFields": [],
-            "lineItemFields": [
+        const payloadToAddPositionLineItem: { headerFields: []; lineItemFields: {}[] } = {
+            headerFields: [],
+            lineItemFields: [
                 {
-                    "name": "position",
-                    "label": "",
-                    "description": "first column in invoice table. Might need two lines as its column is quite narrow. Examples for positions are 01.01. . .0030 or 02. . . . If after position, there is no description for this position, the position belongs to the last position.",
-                    "defaultExtractor": {},
-                    "predefined": false,
-                    "setupType": "static",
-                    "setupTypeVersion": "2.0.0",
-                    "setup": {"type":"auto","priority":1},
-                    "formattingType": "string",
-                    "formatting": {},
-                    "formattingTypeVersion": "1.0.0"
+                    name: "position",
+                    label: "",
+                    description:
+                        "first column in invoice table. Might need two lines as its column is quite narrow. Examples for positions are 01.01. . .0030 or 02. . . . If after position, there is no description for this position, the position belongs to the last position.",
+                    defaultExtractor: {},
+                    predefined: false,
+                    setupType: "static",
+                    setupTypeVersion: "2.0.0",
+                    setup: { type: "auto", priority: 1 },
+                    formattingType: "string",
+                    formatting: {},
+                    formattingTypeVersion: "1.0.0"
                 }
             ]
-        }
-        await doxConnection.send("POST", "/schemas/" + schemaId + "/versions/1/fields?clientId=default", payloadToAddPositionLineItem);
+        };
+        await doxConnection.send(
+            "POST",
+            "/schemas/" + schemaId + "/versions/1/fields?clientId=default",
+            payloadToAddPositionLineItem
+        );
         await doxConnection.send("POST", "/schemas/" + schemaId + "/versions/1/activate?clientId=default");
-    }
+    };
 
     /* Set current validator of invoice */
     private setCV = async (req: Request) => {
@@ -351,8 +361,10 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     private async uploadSamplesS3() {
         // the sample invoices lie here
         const dir = path.join(__dirname, "samples");
-        const files = await fs.promises.readdir(dir).catch((err) => console.log("Expected directory 'samples' with sample invoices, but not found.", err));
-        if (!Array.isArray(files) || Array.isArray(files) && files.length === 0) return;
+        const files = await fs.promises
+            .readdir(dir)
+            .catch((err) => console.log("Expected directory 'samples' with sample invoices, but not found.", err));
+        if (!Array.isArray(files) || (Array.isArray(files) && files.length === 0)) return;
         // cut off '.pdf'
         let id = files[0].split(".")[0];
         const invoice = await SELECT.one.from(Invoices).where({ invoiceID: id });

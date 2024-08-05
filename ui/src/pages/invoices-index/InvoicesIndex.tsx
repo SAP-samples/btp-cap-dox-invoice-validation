@@ -29,7 +29,7 @@ export default function InvoicesIndex() {
 
     return (
         <Page disableScrolling style={{ paddingTop: "1rem", paddingBottom: "1rem" }}>
-            <InvoicesTables assignedInvoices={assignedInvoices} otherInvoices={otherInvoices}/>
+            <InvoicesTables assignedInvoices={assignedInvoices} otherInvoices={otherInvoices} />
         </Page>
     );
 }

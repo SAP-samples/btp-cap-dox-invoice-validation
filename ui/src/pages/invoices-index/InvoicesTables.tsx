@@ -10,16 +10,17 @@ import InvoicesTable from "./InvoicesTable";
 
 export default function InvoicesTables({
     assignedInvoices,
-    otherInvoices,
+    otherInvoices
 }: {
     assignedInvoices: Invoices;
     otherInvoices: Invoices;
 }) {
-
     const [extractionState, setExtractionState] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
-        uploadAndFetchAllDocuments().then(()=>checkExtractionStatusesOfAllInvoices().catch(console.log)).catch(console.log);
+        uploadAndFetchAllDocuments()
+            .then(() => checkExtractionStatusesOfAllInvoices().catch(console.log))
+            .catch(console.log);
     }, []);
 
     const uploadAndFetchAllDocuments = async () =>
@@ -32,14 +33,14 @@ export default function InvoicesTables({
     async function checkExtractionStatusesOfAllInvoices() {
         const res = await (await fetch(`${BASE_URL_CAP}/areInvoiceExtractionsCompleted()`, { method: "GET" })).json();
         if (Object.values(res.value).includes(false)) {
-            setTimeout(()=>checkExtractionStatusesOfAllInvoices(), 5000);
+            setTimeout(() => checkExtractionStatusesOfAllInvoices(), 5000);
         }
         setExtractionState(res.value);
     }
 
     return (
         <Surface>
-            <InvoicesTable 
+            <InvoicesTable
                 invoices={assignedInvoices}
                 titleKey="invoicesToBeValidated"
                 noDataKey="notCVOfAnyInvoice"
