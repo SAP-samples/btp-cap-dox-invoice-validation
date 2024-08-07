@@ -118,7 +118,6 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
 
         // one-time upload of sample invoices if not there yet
         this.uploadSamplesS3();
-        this.createDoxSchema();
     }
 
     private getUserInfo = async (req: Request) => {
@@ -414,6 +413,10 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         const invoicesWithoutJobIDs = invoices.filter(
             (invoice) => !invoice.doxPositionsJobID || !invoice.doxLineItemsJobID
         );
+        // sample invoice '3420987413543' not analyzed yet -> probably no dox schema yet either
+        if (invoicesWithoutJobIDs.map(invoice => invoice.invoiceID).includes("3420987413543")) {
+            await this.createDoxSchema();
+        }
         for (const invoiceWithoutJobID of invoicesWithoutJobIDs) {
             const data = { data: { id: invoiceWithoutJobID.invoiceID } };
             const positionsJobID = await this.uploadToDOXToGetPositions(data);
