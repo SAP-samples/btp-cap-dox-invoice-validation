@@ -8,7 +8,7 @@
         "watch:ui": "npm-run-all --parallel start:vite-server start:router",
         "start:vite-server": "npm --prefix ./ui run dev",
         "start:router": "npm --prefix ./router run start:local",
-        "setup": "npm install && npm --prefix ./ui install --force && npm --prefix ./router install && npm --prefix ./api install && npm --prefix ./api run generate:types",
+        "setup": "(npm install); (cd api && npm i && npm run generate:types); (cd ui && npm i --force); (cd router && npm i);",
         "assemble:types": "npm --prefix ./api run generate:types &&  cp -r api/srv/@cds-models/. ui/src/types/entities && find ./ui/src/types/entities -name index.js -delete",
         "build": "mbt build -p=cf -t=./mta_archives --mtar=dox-invoice-validation.mtar",
         "deploy": "npm run build && cf deploy mta_archives/dox-invoice-validation.mtar"

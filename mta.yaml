@@ -8,7 +8,6 @@ build-parameters:
     before-all:
         - builder: custom
           commands:
-              - npm install --omit=dev --prefix api
               - npm run build:cf --prefix api
               - npm run build --prefix ui
 
@@ -37,12 +36,10 @@ modules:
                 name: dox-invoice-validation-snapshot
                 url: ~{default-url}
       build-parameters:
-          ignore: [./dev]
-          builder: custom
+          builder: npm
+          ignore: ["./dev", "./node_modules"]
           requires:
               - name: dox-invoice-validation-api-srv
-          commands:
-              - npm install --omit=dev
 
     - name: dox-invoice-validation-api-srv
       type: nodejs
@@ -51,6 +48,7 @@ modules:
           buildpack: nodejs_buildpack
       build-parameters:
           builder: npm
+          ignore: ["./node_modules"]
       provides:
           - name: api # required by consumers of CAP services (e.g. approuter)
             properties:
@@ -71,6 +69,8 @@ modules:
       path: api/gen/db
       parameters:
           buildpack: nodejs_buildpack
+      build-parameters:
+          ignore: ["./node_modules"]
       requires:
           - name: dox-invoice-validation-db
 
