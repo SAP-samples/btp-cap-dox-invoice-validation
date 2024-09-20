@@ -2,19 +2,6 @@
     "name": "dox-mission-invoice-validation-api",
     "version": "1.0.0",
     "private": true,
-    "dependencies": {
-        "@aws-sdk/client-s3": "^3.621.0",
-        "@sap-cloud-sdk/openapi": "^3.17.0",
-        "@sap/cds": "^8.1.0",
-        "@sap/cds-hana": "^2",
-        "@sap/xsenv": "^5.2.0",
-        "@sap/xssec": "^4.2.1",
-        "@types/sap__xsenv": "^3.3.2",
-        "cf-nodejs-logging-support": "^7.3.0",
-        "express": "^4.19.2",
-        "hdb": "^0.19.8",
-        "passport": "^0.7.0"
-    },
     "scripts": {
         "start": "cds-serve",
         "watch": "cds-ts watch --profile hybrid",
@@ -24,6 +11,23 @@
         "cleanup:ts": "npx --yes rimraf@5.0.1 --glob -v \"./gen/srv/srv/**/*.ts\"",
         "deploy": "cds deploy -2 hana:dox-invoice-validation-db --profile production",
         "generate:types": "npx --yes @cap-js/cds-typer@0.24.0 ./srv/invoice-assessment-service.cds ./db/invoice-assessment.cds --outputDirectory ./srv/@cds-models"
+    },
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.621.0",
+        "@sap-cloud-sdk/openapi": "^3.17.0",
+        "@sap/cds": "^8.1.0",
+        "@sap/cds-hana": "^2",
+        "@sap/xsenv": "^5.2.0",
+        "@sap/xssec": "^4.2.1",
+        "cf-nodejs-logging-support": "^7.3.0",
+        "express": "^4.19.2",
+        "hdb": "^0.19.8",
+        "passport": "^0.7.0"
+    },
+    "devDependencies": {
+        "@cap-js/cds-types": "^0.6.5",
+        "@types/node": "^22.5.5",
+        "@types/sap__xsenv": "^3.3.2"
     },
     "cds": {
         "requires": {

@@ -175,3 +175,4 @@ router/dev/default-services.json
 mta_archives/
 requests.http
 api/srv/@cds-models/
+*_mta_build_tmp/
