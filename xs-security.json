@@ -26,6 +26,8 @@
         }
     ],
     "oauth2-configuration": {
-        "token-validity": 3600
+        "token-validity": 3600,
+        "redirect-uris": ["https://*cfapps.eu10.hana.ondemand.com/**/*"],
+        "credential-types": ["binding-secret", "x509"]
     }
 }
