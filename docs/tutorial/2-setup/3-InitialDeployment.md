@@ -26,6 +26,8 @@ npm install -g @sap/cds-dk typescript ts-node
 npm run setup
 ```
 
+If you are on Windows, run the `win:setup` script instead which works in Git BASH. If that does not work either, navigate into the subfolders manually and invoke the parts of the script one by one.
+
 3. Then, login to your subaccount and space with:
 ```
 cf login
