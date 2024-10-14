@@ -3,7 +3,7 @@ To get the app up and running for the first time, you do a first initial deploym
 `mta.yaml` deployment descriptor file. The following command-line tools are used for that, which you need to install.
 
 1. Cloud MTA Build Tool ([MBT](https://sap.github.io/cloud-mta-build-tool/)) to build the application (app) and get it ready for deployment
-2. Cloud Foundry CLI ([CF CLI](https://github.com/cloudfoundry/cli/wiki/V8-CLI-Installation-Guide))
+2. Cloud Foundry CLI ([CF CLI](https://github.com/cloudfoundry/cli/wiki/V8-CLI-Installation-Guide)). Please also install the [multiapps plugin](https://github.com/cloudfoundry/multiapps-cli-plugin?tab=readme-ov-file#cf-community-plugin-repository) for the `cf deploy` command to be available.
 
 Double check, whether you have [Node](https://nodejs.org/en) installed. The sample is built with Node version 20, so this is the version we recommend here.
 To manage multiple Node versions you can use [NVM](https://github.com/nvm-sh/nvm). To check your current Node version, run:
@@ -26,19 +26,23 @@ npm install -g @sap/cds-dk typescript ts-node
 npm run setup
 ```
 
-If you are on Windows, run the `win:setup` script instead which works in Git BASH. If that does not work either, navigate into the subfolders manually and invoke the parts of the script one by one.
+If you are on Windows, run the `win:setup` script instead which works in Git BASH. If that does not work either, navigate into the subfolders manually and invoke the parts of the script, e.g. `npm install` one by one.
 
 3. Then, login to your subaccount and space with:
 ```
 cf login
 ```
 
-4. Next, issue the following command (while being at root level of your project directory) to _build_ and _deploy_ the whole app at once to your subaccount:
+4. In the `xs-security.json` file, adjust the allowed redirect URI within oauth2-configuration to the region of your subaccount. Say it is in the eu10-004 region, then replace the `eu10` part with `eu10-004`.
+
+5. Next, issue the following command (while being at root level of your project directory) to _build_ and _deploy_ the whole app at once to your subaccount:
 ```
 npm run deploy
 ```
 
-5. Within the BTP Cockpit inside your subaccount, create a [role collection](https://cap.cloud.sap/docs/node.js/authentication#auth-in-cockpit) _DOX\_Mission\_Administrator_ and add the _Administrator_ role to it; then assign yourself to the collection. (The role was precreated during the deployment and you will find it in the roles list under _Security_ in your subaccount, if you filter by _mission_.)
+Make sure a HANA CLOUD instance is mapped to your BTP space, so that there is a database available. 
+
+6. Within the BTP Cockpit inside your subaccount, create a [role collection](https://cap.cloud.sap/docs/node.js/authentication#auth-in-cockpit) _DOX\_Mission\_Administrator_ and add the _Administrator_ role to it; then assign yourself to the collection. (The role was precreated during the deployment and you will find it in the roles list under _Security_ in your subaccount, if you filter by _mission_.)
 
 Last but not least a destination has to be created (manually in this case), which our app uses to connect to the DOX service.
 For that create a [service key](https://help.sap.com/docs/service-manager/sap-service-manager/creating-service-keys-in-cloud-foundry?version=Cloud&locale=en-US) for the destination service itself and name it _dox-iv-api-dest-key_. In it you find the credentials to enter for the placeholders (shown below) of the actual destination.
