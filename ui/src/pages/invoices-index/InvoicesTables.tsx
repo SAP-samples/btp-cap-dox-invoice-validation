@@ -18,9 +18,7 @@ export default function InvoicesTables({
     const [extractionState, setExtractionState] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
-        uploadAndFetchAllDocuments()
-            .then(() => checkExtractionStatusesOfAllInvoices().catch(console.log))
-            .catch(console.log);
+        checkExtractionStatusesOfAllInvoices();
     }, []);
 
     const uploadAndFetchAllDocuments = async () =>
@@ -31,11 +29,14 @@ export default function InvoicesTables({
         });
 
     async function checkExtractionStatusesOfAllInvoices() {
-        const res = await (await fetch(`${BASE_URL_CAP}/areInvoiceExtractionsCompleted()`, { method: "GET" })).json();
-        if (Object.values(res.value).includes(false)) {
-            setTimeout(() => checkExtractionStatusesOfAllInvoices(), 5000);
+        const resp = await fetch(`${BASE_URL_CAP}/areInvoiceExtractionsCompleted()`);
+        if (resp.ok) {
+            const data = await resp.json();
+            const state: { [invoiceID: string]: boolean } = {};
+            for (const ID of data.done) state[ID] = true;
+            for (const ID of data.pending) state[ID] = false;
+            setExtractionState(state);
         }
-        setExtractionState(res.value);
     }
 
     return (

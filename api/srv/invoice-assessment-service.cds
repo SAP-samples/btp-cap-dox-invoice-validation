@@ -64,7 +64,7 @@ service InvoiceAssessmentService {
     function getFileFromS3(s3BucketKey : String)                                                      returns LargeString;
     function getPositionsFromDOX(id : String)                                                         returns String;
     function getLineItemsFromDOX(id : String)                                                         returns String;
-    function areInvoiceExtractionsCompleted()                                                         returns array of String;
+    function areInvoiceExtractionsCompleted()                                                         returns { done: array of String; pending: array of String; };
 
 
     type ReturnMessage {

@@ -528,10 +528,11 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return { storedInvoices: storedInvoices, waitingFor: waitingFor };
     };
 
-    /* Returns ids of invoices which dox has analysed already */
+    /* Returns ids of invoices which dox has (not) analysed */
     private areInvoiceExtractionsCompleted = async () => {
         const invs = await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID }`);
-        return invs.filter((inv) => !!inv.doxPositionsJobID).map((inv) => inv.invoiceID);
+        const done = invs.filter((inv) => !!inv.doxPositionsJobID).map((inv) => inv.invoiceID);
+        return { done, pending: invs.map((inv) => inv.invoiceID).filter((ID) => !done.includes(ID)) };
     };
 
     // easy cache by storing the results in a file on the server
