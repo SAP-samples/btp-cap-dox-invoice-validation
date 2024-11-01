@@ -30,7 +30,7 @@ import {
 } from "#cds-models/dox";
 import log from "./logging";
 
-const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION";
+const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION"; // dox, as in Document Information Extqraction service
 
 const s3: any = xsenv.getServices({ objectstore: { label: "objectstore" } }).objectstore;
 const BUCKET_S3: string = s3.bucket;
@@ -414,7 +414,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
             (invoice) => !invoice.doxPositionsJobID || !invoice.doxLineItemsJobID
         );
         // sample invoice '3420987413543' not analyzed yet -> probably no dox schema yet either
-        if (invoicesWithoutJobIDs.map(invoice => invoice.invoiceID).includes("3420987413543")) {
+        if (invoicesWithoutJobIDs.map((invoice) => invoice.invoiceID).includes("3420987413543")) {
             await this.createDoxSchema();
         }
         for (const invoiceWithoutJobID of invoicesWithoutJobIDs) {
@@ -528,55 +528,10 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return { storedInvoices: storedInvoices, waitingFor: waitingFor };
     };
 
-    private areInvoiceExtractionsCompleted = async (req: Request) => {
-        const invoices: { invoiceID?: string; doxPositionsJobID?: string; doxLineItemsJobID?: string }[] =
-            await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID, doxLineItemsJobID }`);
-        const doxConnection = await this.getDoxConnection();
-        const doxResponse: {
-            results: {
-                status: string;
-                id: string;
-                fileName: string;
-                documentType: string;
-                created: string;
-                finished?: string;
-                clientId?: string;
-            }[];
-        } = await doxConnection.send("GET", "/document/jobs");
-        const doxDocumentIDMapToInvoiceID: { [documentID: string]: string } = {};
-        const invoiceDocuments = doxResponse.results.filter((document) => {
-            for (const invoice of invoices)
-                if (invoice.doxPositionsJobID == document.id || invoice.doxLineItemsJobID == document.id) {
-                    doxDocumentIDMapToInvoiceID[document.id] = invoice.invoiceID;
-                    return true;
-                }
-            return false;
-        });
-        let invoicesInfo: { invoiceID: string; status: string }[] = invoiceDocuments.map((invoiceDocument) => {
-            return {
-                invoiceID: doxDocumentIDMapToInvoiceID[invoiceDocument.id],
-                status: invoiceDocument.status
-            };
-        });
-        invoices.forEach((invoice) => {
-            if (!invoicesInfo.find((info) => info.invoiceID == invoice.invoiceID))
-                invoicesInfo.push({ invoiceID: invoice.invoiceID, status: "PENDING" });
-        });
-        const invoicesInfoWithoutDuplicateInvoices: typeof invoicesInfo = Object.values(
-            invoicesInfo.reduce((acc: any, { invoiceID, status }) => {
-                acc[invoiceID] = acc[invoiceID] || { invoiceID, status: "DONE" };
-                if (status === "PENDING") {
-                    acc[invoiceID].status = "PENDING";
-                }
-                return acc;
-            }, {})
-        );
-        const isDocumentProcessedMap: { [invoiceID: string]: boolean } = {};
-        invoicesInfoWithoutDuplicateInvoices.forEach((info: any) => {
-            if (info.status == "DONE") isDocumentProcessedMap[info.invoiceID] = true;
-            else isDocumentProcessedMap[info.invoiceID] = false;
-        });
-        return isDocumentProcessedMap;
+    /* Returns ids of invoices which dox has analysed already */
+    private areInvoiceExtractionsCompleted = async () => {
+        const invs = await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID }`);
+        return invs.filter((inv) => !!inv.doxPositionsJobID).map((inv) => inv.invoiceID);
     };
 
     // easy cache by storing the results in a file on the server
