@@ -95,5 +95,5 @@ service InvoiceAssessmentService {
     action   uploadToDOXToGetPositions(id : String)                                                   returns String;
     action   uploadToDOXToGetLineItems(id : String)                                                   returns String;
     action   deleteFileFromS3(s3BucketKey : String, documentId : String)                              returns ReturnMessage;
-    action   checkAllDocumentsExtractions()                                                           returns String;
+    action   doxExtractFromInvoices();
 }
