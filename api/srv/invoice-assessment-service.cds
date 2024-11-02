@@ -68,7 +68,7 @@ service InvoiceAssessmentService {
     // returns json of dox response, no good type for that unfortunately
     // says String, but still returns json
     function doxGetPositions(invoiceID: String)                                                       returns String;
-
+    function doxGetLineItems(invoiceID: String)                                                       returns String;
 
     type ReturnMessage {
         message : String;

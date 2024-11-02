@@ -34,18 +34,15 @@ export class PDFLineItems {
         this.id = id;
     }
 
-    // fetch new version of dox:
-    // figure out how to use destinations in code
-
     private async fetchLineItemsFromDOX(): Promise<any> {
-        return await fetch(`${BASE_URL_CAP}/getLineItemsFromDOX(id='${this.id}')`);
+        return await fetch(`${BASE_URL_CAP}/doxGetLineItems(invoiceID='${this.id}')`);
     }
 
     private async getInvoiceEntries() {
         const doxServiceResponse = await this.fetchLineItemsFromDOX();
         if (doxServiceResponse.ok) {
             const doxServiceResponseJson = await doxServiceResponse.json();
-            const lineItems = JSON.parse(doxServiceResponseJson.value);
+            const lineItems = doxServiceResponseJson.value;
             return lineItems;
         } else throw new Error("Fetching DOX Service for LineItems failed with documentID " + this.id);
     }

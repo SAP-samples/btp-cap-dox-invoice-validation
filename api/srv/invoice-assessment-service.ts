@@ -102,6 +102,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         this.on("getFileFromS3", (req: Request) => this.getFileFromS3(req.data.s3BucketKey as string));
         this.on("areInvoiceExtractionsCompleted", this.areInvoiceExtractionsCompleted);
         this.on("doxGetPositions", this.doxGetPositions);
+        this.on("doxGetLineItems", this.doxGetLineItems);
 
         // ACTIONS
         this.on("setCV", this.setCV);
@@ -419,7 +420,12 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return resp.extraction.lineItems.map((item: any) => item[0]);
     };
 
-    // private doxGetLineItems = async () => {}
+    private doxGetLineItems = async (req: Request) => {
+        const ID = req.data.invoiceID as string;
+        const jobID = (await SELECT.one.from(Invoices, ID).columns(`{ doxLineItemsJobID }`)).doxLineItemsJobID;
+        const resp = await (await this.getDoxConnection()).send("GET", "/document/jobs/" + jobID);
+        return resp.extraction.lineItems;
+    };
 
     private doxCreatePositionsSchema = async () => {
         const schema = {
