@@ -31,6 +31,7 @@ import {
 import log from "./logging";
 
 const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION"; // dox, as in Document Information Extqraction service
+const DOX_EXTRA_POSITIONS_SCHEMA = "invoicePositions";
 
 const s3: any = xsenv.getServices({ objectstore: { label: "objectstore" } }).objectstore;
 const BUCKET_S3: string = s3.bucket;
@@ -100,6 +101,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         this.on("getPdfBytesByKey", this.getPdfBytesByKey);
         this.on("getFileFromS3", (req: Request) => this.getFileFromS3(req.data.s3BucketKey as string));
         this.on("areInvoiceExtractionsCompleted", this.areInvoiceExtractionsCompleted);
+        this.on("doxGetPositions", this.doxGetPositions);
 
         // ACTIONS
         this.on("setCV", this.setCV);
@@ -365,15 +367,10 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         // initial sample invoice '3420987413543' not analyzed yet -> no dox schema for positions yet either
         if (todos.find((ID) => ID === "3420987413543")) await this.doxCreatePositionsSchema();
 
-        // prettiere-ignore
-        const jobs = await Promise.all(
-            todos
-                .map((invoiceID) => [
-                    this.doxUploadInvoice(invoiceID, "invoicePositions"),
-                    this.doxUploadInvoice(invoiceID)
-                ])
-                .flat()
-        );
+        // prettier-ignore
+        const jobs = await Promise.all(todos.map((invoiceID) =>
+                                        [this.doxUploadInvoice(invoiceID, DOX_EXTRA_POSITIONS_SCHEMA), this.doxUploadInvoice(invoiceID)])
+                                        .flat());
         // prettier-ignore
         await Promise.all(todos.map( async (ID, i) =>
                             // @ts-ignore
@@ -412,11 +409,23 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return { done, pending: invs.map((inv) => inv.invoiceID).filter((ID) => !done.includes(ID)) };
     };
 
+    // TODO: function to GET extraction results by job id
+    private doxGetPositions = async (req: Request) => {
+        const ID = req.data.invoiceID as string;
+        // TODO: how to handle no job ID
+        // assume job ID definitely exists for now
+        const jobID = (await SELECT.one.from(Invoices, ID).columns(`{ doxPositionsJobID }`)).doxPositionsJobID;
+        const resp = await (await this.getDoxConnection()).send("GET", "/document/jobs/" + jobID);
+        return resp.extraction.lineItems.map((item: any) => item[0]);
+    };
+
+    // private doxGetLineItems = async () => {}
+
     private doxCreatePositionsSchema = async () => {
         const schema = {
             clientId: "default",
             documentType: "custom",
-            name: "invoicePositions",
+            name: DOX_EXTRA_POSITIONS_SCHEMA,
             schemaDescription: "Schema to extract the positions of an invoice",
             documentTypeDescription: "" // is required
         };

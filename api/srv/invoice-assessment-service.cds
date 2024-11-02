@@ -65,6 +65,9 @@ service InvoiceAssessmentService {
     function getPositionsFromDOX(id : String)                                                         returns String;
     function getLineItemsFromDOX(id : String)                                                         returns String;
     function areInvoiceExtractionsCompleted()                                                         returns { done: array of String; pending: array of String; };
+    // returns json of dox response, no good type for that unfortunately
+    // says String, but still returns json
+    function doxGetPositions(invoiceID: String)                                                       returns String;
 
 
     type ReturnMessage {

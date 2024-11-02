@@ -32,11 +32,11 @@ export class PDFPositions {
     }
 
     private async fetchPositionsFromDOX() {
-        const positionsResponse = await fetch(`${BASE_URL_CAP}/getPositionsFromDOX(id='${this.id}')`, {
+        const positionsResponse = await fetch(`${BASE_URL_CAP}/doxGetPositions(invoiceID='${this.id}')`, {
             method: "GET",
             headers: new Headers({ "content-type": "application/json" })
         });
-        const positions = JSON.parse((await positionsResponse.json()).value);
+        const positions = (await positionsResponse.json()).value;
         return positions;
     }
 
