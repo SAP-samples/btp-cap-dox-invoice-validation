@@ -358,8 +358,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     /* INTERACTION WITH DOX */
 
     /* Entry point to extract line items from invoices (pdfs). Note, we need one extra schema
-    just for positions because default invoice schema doesn't include them.
-    We store dox job ids alongside invoice and use it as indicator that extraction is complete */
+    just for positions because default invoice schema doesn't include them. We store dox job ids alongside invoice */
     private doxExtractFromInvoices = async () => {
         // TODO: called twice by effect, any way to prevent this?
         const todos = (await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID }`)) // todos, the invoices not yet analyzed
@@ -405,11 +404,19 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return formData;
     }
 
-    /* Returns ids of invoices which dox has (not) analysed */
+    /* Returns ids of invoices which dox has (not) finished analysing just yet */
     private areInvoiceExtractionsCompleted = async () => {
-        const invs = await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID }`);
-        const done = invs.filter((inv) => !!inv.doxPositionsJobID).map((inv) => inv.invoiceID);
-        return { done, pending: invs.map((inv) => inv.invoiceID).filter((ID) => !done.includes(ID)) };
+        const invs = await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID, doxLineItemsJobID }`);
+        const jobs = (await (await this.getDoxConnection()).send("GET", "/document/jobs")).results;
+        const ret: { done: string[]; pending: string[] } = { done: [], pending: [] };
+        for (const inv of invs) {
+            const pos = jobs.find((jb: any) => jb.id === inv.doxPositionsJobID);
+            const li = jobs.find((jb: any) => jb.id === inv.doxLineItemsJobID);
+
+            // prettier-ignore
+            pos && pos.status === "DONE" && li && li.status === "DONE" ? ret.done.push(inv.invoiceID) : ret.pending.push(inv.invoiceID);
+        }
+        return ret;
     };
 
     private doxGetPositions = async (req: Request) => {
