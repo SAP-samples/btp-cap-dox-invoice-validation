@@ -21,28 +21,30 @@ export default function InvoicesIndex() {
 
     useEffect(() => {
         fetchAllInvoices().catch(console.log);
-        updateExtractionState();
+        updateExtractionState({ mounting: true });
     }, []);
 
-    async function updateExtractionState() {
-        const vals = Object.values(extractionState);
-        if (bgJob && vals.every((done) => done) && vals.length > 0) {
-            console.log("everything done, clearing interval now");
-            window.clearInterval(bgJob);
-            return;
-        }
-        console.log("api call now, checking extraction state now");
+    async function updateExtractionState({ mounting = false }: { mounting?: boolean } = {}) {
+        // We only want to show the message once on component mount, thus the mounting flag.
+        console.log("call api now to check extraction state");
         const resp = await fetch(`${BASE_URL_CAP}/areInvoiceExtractionsCompleted()`);
         if (resp.ok) {
             const data = await resp.json();
             // let user kick of line items extraction from missing invoices using dox
-            if (data.pending.length > 0) setShowMessage(true);
+            if (mounting && data.pending.length > 0) setShowMessage(true);
 
             const state: { [invoiceID: string]: boolean } = {};
             for (const ID of data.done) state[ID] = true;
             for (const ID of data.pending) state[ID] = false;
-            console.log("setting state now, state is", state, "data is", data);
+            console.log("set new extraction state now, new state is", state);
             setExtractionState(state);
+
+            // everything done, time to stop bg job
+            const vals = Object.values(state);
+            if (bgJob && vals.every((done) => done) && vals.length > 0) {
+                console.log("everything done, stopping background job now");
+                window.clearInterval(bgJob);
+            }
         }
     }
 
@@ -72,7 +74,12 @@ export default function InvoicesIndex() {
                 onClose={() => {
                     // prettier-ignore
                     fetch(`${BASE_URL_CAP}/doxExtractFromInvoices`, { method: "POST", headers: { "content-type": "application/json" } })
-                        .then(() => { if (!bgJob) bgJob = window.setInterval(updateExtractionState, 10000); });
+                        .then(() => { if (!bgJob) {
+                                // TODO: what if a dox job failes ? (status: FAILED)
+                                bgJob = window.setInterval(updateExtractionState, 10000);
+                                console.log("starting background job now");
+                            }
+                        });
                     setShowMessage(false);
                 }}
             >
