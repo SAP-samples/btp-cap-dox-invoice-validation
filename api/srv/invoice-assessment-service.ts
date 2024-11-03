@@ -361,6 +361,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     just for positions because default invoice schema doesn't include them.
     We store dox job ids alongside invoice and use it as indicator that extraction is complete */
     private doxExtractFromInvoices = async () => {
+        // TODO: called twice by effect, any way to prevent this?
         const todos = (await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID }`)) // todos, the invoices not yet analyzed
             .filter((inv) => !inv.doxPositionsJobID)
             .map((inv) => inv.invoiceID);
@@ -375,7 +376,8 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         // prettier-ignore
         await Promise.all(todos.map( async (ID, i) =>
                             // @ts-ignore
-                            await UPDATE(Invoices, ID).with({ doxPositionsJobID: jobs[i * 2].id, doxLineItemsJobID: jobs[i * 2 + 1].id })));
+                            await UPDATE(Invoices, ID).with({ doxPositionsJobID: jobs[i*2].id, doxLineItemsJobID: jobs[i*2 + 1].id })));
+        return;
     };
 
     /* Upload invoice first for dox to extract from it */
@@ -410,12 +412,11 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return { done, pending: invs.map((inv) => inv.invoiceID).filter((ID) => !done.includes(ID)) };
     };
 
-    // TODO: function to GET extraction results by job id
     private doxGetPositions = async (req: Request) => {
         const ID = req.data.invoiceID as string;
-        // TODO: how to handle no job ID
-        // assume job ID definitely exists for now
         const jobID = (await SELECT.one.from(Invoices, ID).columns(`{ doxPositionsJobID }`)).doxPositionsJobID;
+        if (!jobID) req.reject(400, "No job ID found, invoice probably not yet analyzed");
+
         const resp = await (await this.getDoxConnection()).send("GET", "/document/jobs/" + jobID);
         return resp.extraction.lineItems.map((item: any) => item[0]);
     };
@@ -436,9 +437,13 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
             documentTypeDescription: "" // is required
         };
         const doxConnection = await this.getDoxConnection();
-        const doxResponse: any = await doxConnection.send("POST", "/schemas", schema);
-        const schemaId = doxResponse.id;
-
+        let schemaId;
+        try {
+            const doxResponse: any = await doxConnection.send("POST", "/schemas", schema);
+            schemaId = doxResponse.id;
+        } catch (e) {
+            throw new Error("Failed to create schema. Schema probably already exists");
+        }
         const payloadToAddPositionLineItem: { headerFields: []; lineItemFields: {}[] } = {
             headerFields: [],
             lineItemFields: [
