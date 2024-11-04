@@ -1,4 +1,4 @@
-import cds, { Request, Service } from "@sap/cds";
+import cds, { Request } from "@sap/cds";
 import FormData from "form-data";
 import xsenv from "@sap/xsenv";
 import {
@@ -373,9 +373,10 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
                                         [this.doxUploadInvoice(invoiceID, DOX_EXTRA_POSITIONS_SCHEMA), this.doxUploadInvoice(invoiceID)])
                                         .flat());
         // prettier-ignore
-        await Promise.all(todos.map( async (ID, i) =>
+        await Promise.all(todos.map(async (ID, i) =>
                             // @ts-ignore
-                            await UPDATE(Invoices, ID).with({ doxPositionsJobID: jobs[i*2].id, doxLineItemsJobID: jobs[i*2 + 1].id })));
+                            await UPDATE(Invoices, { invoiceID: ID })
+                                .with({ doxPositionsJobID: jobs[i*2].id, doxLineItemsJobID: jobs[i*2 + 1].id })));
         return;
     };
 
@@ -421,7 +422,8 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
 
     private doxGetPositions = async (req: Request) => {
         const ID = req.data.invoiceID as string;
-        const jobID = (await SELECT.one.from(Invoices, ID).columns(`{ doxPositionsJobID }`)).doxPositionsJobID;
+        const jobID = (await SELECT.one.from(Invoices, { invoiceID: ID }).columns(`{ doxPositionsJobID }`))
+            .doxPositionsJobID;
         if (!jobID) req.reject(400, "No job ID found, invoice probably not yet analyzed");
 
         const resp = await (await this.getDoxConnection()).send("GET", "/document/jobs/" + jobID);
@@ -430,7 +432,8 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
 
     private doxGetLineItems = async (req: Request) => {
         const ID = req.data.invoiceID as string;
-        const jobID = (await SELECT.one.from(Invoices, ID).columns(`{ doxLineItemsJobID }`)).doxLineItemsJobID;
+        const jobID = (await SELECT.one.from(Invoices, { invoiceID: ID }).columns(`{ doxLineItemsJobID }`))
+            .doxLineItemsJobID;
         const resp = await (await this.getDoxConnection()).send("GET", "/document/jobs/" + jobID);
         return resp.extraction.lineItems;
     };
