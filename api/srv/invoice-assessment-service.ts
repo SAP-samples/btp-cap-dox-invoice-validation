@@ -366,8 +366,13 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
             .map((inv) => inv.invoiceID);
         if (todos.length === 0) return;
         // initial sample invoice '3420987413543' not analyzed yet -> no dox schema for positions yet either
-        if (todos.find((ID) => ID === "3420987413543")) await this.doxCreatePositionsSchema();
-
+        if (todos.find((ID) => ID === "3420987413543")) {
+            try {
+                await this.doxCreatePositionsSchema();
+            } catch {
+                console.log("Failed to create dox positions schema, probably just already exists");
+            }
+        }
         // prettier-ignore
         const jobs = await Promise.all(todos.map((invoiceID) =>
                                         [this.doxUploadInvoice(invoiceID, DOX_EXTRA_POSITIONS_SCHEMA), this.doxUploadInvoice(invoiceID)])
