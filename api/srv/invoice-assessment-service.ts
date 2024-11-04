@@ -1,4 +1,4 @@
-import cds, { Request, Service } from "@sap/cds";
+import cds, { Request } from "@sap/cds";
 import FormData from "form-data";
 import xsenv from "@sap/xsenv";
 import {
@@ -30,7 +30,8 @@ import {
 } from "#cds-models/dox";
 import log from "./logging";
 
-const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION";
+const DOX_DESTINATION_PREMIUM: string = "DOX_PREMIUM_INVOICE_VALIDATION"; // dox, as in Document Information Extqraction service
+const DOX_EXTRA_POSITIONS_SCHEMA = "invoicePositions";
 
 const s3: any = xsenv.getServices({ objectstore: { label: "objectstore" } }).objectstore;
 const BUCKET_S3: string = s3.bucket;
@@ -98,20 +99,18 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         this.on("getUserInfo", this.getUserInfo);
         this.on("getPdfBytesByInvoiceID", this.getPdfBytesByInvoiceID);
         this.on("getPdfBytesByKey", this.getPdfBytesByKey);
-        this.on("getPositionsFromDOX", this.getPositionsFromDOX);
         this.on("getFileFromS3", (req: Request) => this.getFileFromS3(req.data.s3BucketKey as string));
-        this.on("getLineItemsFromDOX", this.getLineItemsFromDOX);
         this.on("areInvoiceExtractionsCompleted", this.areInvoiceExtractionsCompleted);
+        this.on("doxGetPositions", this.doxGetPositions);
+        this.on("doxGetLineItems", this.doxGetLineItems);
 
         // ACTIONS
         this.on("setCV", this.setCV);
         this.on("acceptOrRejectInvoice", this.acceptOrRejectInvoice);
         this.on("assignProjectRole", this.assignProjectRole);
         this.on("uploadFileToS3", this.uploadFileToS3);
-        this.on("uploadToDOXToGetPositions", this.uploadToDOXToGetPositions);
-        this.on("uploadToDOXToGetLineItems", this.uploadToDOXToGetLineItems);
         this.on("deleteFileFromS3", this.deleteFileFromS3);
-        this.on("checkAllDocumentsExtractions", this.checkAllDocumentsExtractions);
+        this.on("doxExtractFromInvoices", this.doxExtractFromInvoices);
 
         this.after(["CREATE", "UPDATE"], "Deductions", this.recordLatestDeduction);
         this.after(["CREATE", "UPDATE"], "Retentions", this.recordLatestRetention);
@@ -141,55 +140,6 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
             isAdmin: req.user.is("admin"),
             projectRoles: projectRoles
         };
-    };
-
-    private getDoxSchemaForPositionExtraction = async () => {
-        const doxConnection = await this.getDoxConnection();
-        const doxSchemas = (await doxConnection.send("GET", "/schemas?clientId=default")).schemas;
-        return doxSchemas.filter((schema: any) => schema.name === "invoicePositions");
-    };
-
-    private isDoxSchemaExisting = async () => {
-        return (await this.getDoxSchemaForPositionExtraction()).length > 0;
-    };
-
-    private createDoxSchema = async () => {
-        if (await this.isDoxSchemaExisting()) return;
-        const doxConnection = await this.getDoxConnection();
-        const schema = {
-            clientId: "default",
-            name: "invoicePositions",
-            schemaDescription: "Schema to extract the positions of an invoice",
-            documentType: "custom",
-            documentTypeDescription: ""
-        };
-        const doxResponse: any = await doxConnection.send("POST", "/schemas", schema);
-        const schemaId = doxResponse.id;
-        const payloadToAddPositionLineItem: { headerFields: []; lineItemFields: {}[] } = {
-            headerFields: [],
-            lineItemFields: [
-                {
-                    name: "position",
-                    label: "",
-                    description:
-                        "first column in invoice table. Might need two lines as its column is quite narrow. Examples for positions are 01.01. . .0030 or 02. . . . If after position, there is no description for this position, the position belongs to the last position.",
-                    defaultExtractor: {},
-                    predefined: false,
-                    setupType: "static",
-                    setupTypeVersion: "2.0.0",
-                    setup: { type: "auto", priority: 1 },
-                    formattingType: "string",
-                    formatting: {},
-                    formattingTypeVersion: "1.0.0"
-                }
-            ]
-        };
-        await doxConnection.send(
-            "POST",
-            "/schemas/" + schemaId + "/versions/1/fields?clientId=default",
-            payloadToAddPositionLineItem
-        );
-        await doxConnection.send("POST", "/schemas/" + schemaId + "/versions/1/activate?clientId=default");
     };
 
     /* Set current validator of invoice */
@@ -405,221 +355,47 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         });
     };
 
-    private async getDoxConnection(): Promise<Service> {
-        return await cds.connect.to(DOX_DESTINATION_PREMIUM);
-    }
+    /* INTERACTION WITH DOX */
 
-    private uploadInvoicesWithoutJobIDToDOX = async (invoices: any[]) => {
-        const invoicesWithoutJobIDs = invoices.filter(
-            (invoice) => !invoice.doxPositionsJobID || !invoice.doxLineItemsJobID
-        );
-        // sample invoice '3420987413543' not analyzed yet -> probably no dox schema yet either
-        if (invoicesWithoutJobIDs.map(invoice => invoice.invoiceID).includes("3420987413543")) {
-            await this.createDoxSchema();
-        }
-        for (const invoiceWithoutJobID of invoicesWithoutJobIDs) {
-            const data = { data: { id: invoiceWithoutJobID.invoiceID } };
-            const positionsJobID = await this.uploadToDOXToGetPositions(data);
-            const lineItemsJobID = await this.uploadToDOXToGetLineItems(data);
-            invoices.forEach((invoice) => {
-                if (invoice.invoiceID == invoiceWithoutJobID.invoiceID) {
-                    invoice.doxPositionsJobID = positionsJobID;
-                    invoice.doxLineItemsJobID = lineItemsJobID;
-                }
-            });
-        }
-    };
+    /* Entry point to extract line items from invoices (pdfs). Note, we need one extra schema
+    just for positions because default invoice schema doesn't include them. We store dox job ids alongside invoice */
+    private doxExtractFromInvoices = async () => {
+        // TODO: called twice by effect, any way to prevent this?
+        const todos = (await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID }`)) // todos, the invoices not yet analyzed
+            .filter((inv) => !inv.doxPositionsJobID)
+            .map((inv) => inv.invoiceID);
+        if (todos.length === 0) return;
+        // initial sample invoice '3420987413543' not analyzed yet -> no dox schema for positions yet either
+        if (todos.find((ID) => ID === "3420987413543")) await this.doxCreatePositionsSchema();
 
-    private cacheDOXResultsInS3 = async (invoiceID: string, extractionType: string, extraction: string) => {
-        const s3Client = this.getS3Client();
-        const key = invoiceID + extractionType + ".json";
-        const buffer = Buffer.from(extraction);
-
-        const command = new PutObjectCommand({ Bucket: BUCKET_S3, Body: buffer, Key: key });
-        await s3Client.send(command);
+        // prettier-ignore
+        const jobs = await Promise.all(todos.map((invoiceID) =>
+                                        [this.doxUploadInvoice(invoiceID, DOX_EXTRA_POSITIONS_SCHEMA), this.doxUploadInvoice(invoiceID)])
+                                        .flat());
+        // prettier-ignore
+        await Promise.all(todos.map(async (ID, i) =>
+                            // @ts-ignore
+                            await UPDATE(Invoices, { invoiceID: ID })
+                                .with({ doxPositionsJobID: jobs[i*2].id, doxLineItemsJobID: jobs[i*2 + 1].id })));
         return;
     };
 
-    private getDOXResultsFromS3 = async (invoiceID: string, extractionType: string) => {
-        const key = invoiceID + extractionType + ".json";
-        const s3Client = this.getS3Client();
-        const command = new GetObjectCommand({ Bucket: BUCKET_S3, Key: key });
-        const response = await s3Client.send(command);
-        const body = await response.Body.transformToString("utf-8");
-        return body;
-    };
-
-    private checkDocumentExtractionStatusInterval: NodeJS.Timeout = null;
-
-    private checkDocumentExtractionStatusIntervalCallback = async (invoice: any, intervalTimeout: any) => {
-        const doxLineItems = await this.getLineItemsOfInvoice(invoice.invoiceID);
-        const doxPositions = await this.getPositionsOfInvoice(invoice.invoiceID);
-        if (!doxPositions.status && !doxLineItems.status) {
-            await this.cacheDOXResultsInS3(invoice.invoiceID, "lineItems", JSON.stringify(doxLineItems.lineItems));
-            await this.cacheDOXResultsInS3(invoice.invoiceID, "positions", JSON.stringify(doxPositions.positions));
-            this.currentlyCheckingDocumentExtractions--;
-            clearInterval(this.checkDocumentExtractionStatusInterval);
-            return;
-        }
-        if (intervalTimeout < Date.now()) {
-            this.currentlyCheckingDocumentExtractions--;
-            clearInterval(this.checkDocumentExtractionStatusInterval);
-            return;
-        }
-    };
-
-    private checkAllDocumentsExtractionsBackgroundJob = () => {
-        cds.spawn({}, async () => {
-            const invoices: { invoiceID?: string; doxPositionsJobID?: string; doxLineItemsJobID?: string }[] =
-                await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID, doxLineItemsJobID }`);
-            await this.uploadInvoicesWithoutJobIDToDOX(invoices);
-            this.currentlyCheckingDocumentExtractions--;
-            for (const invoice of invoices) {
-                this.currentlyCheckingDocumentExtractions++;
-                if (
-                    (await this.getStoredPositionsForInvoice(invoice.invoiceID)) &&
-                    (await this.getStoredLineItemsForInvoice(invoice.invoiceID))
-                ) {
-                    this.currentlyCheckingDocumentExtractions--;
-                    continue;
-                }
-                const doxPositions = await this.getPositionsOfInvoice(invoice.invoiceID);
-                const doxLineItems = await this.getLineItemsOfInvoice(invoice.invoiceID);
-                if (!doxPositions.status && !doxLineItems.status) {
-                    await this.cacheDOXResultsInS3(
-                        invoice.invoiceID,
-                        "lineItems",
-                        JSON.stringify(doxLineItems.lineItems)
-                    );
-                    await this.cacheDOXResultsInS3(
-                        invoice.invoiceID,
-                        "positions",
-                        JSON.stringify(doxPositions.positions)
-                    );
-                    this.currentlyCheckingDocumentExtractions--;
-                    continue;
-                }
-                const intervalTimeout = Date.now() + 1000 * 60 * 3;
-                this.checkDocumentExtractionStatusInterval = setInterval(
-                    () => this.checkDocumentExtractionStatusIntervalCallback(invoice, intervalTimeout),
-                    10000
-                );
-            }
-        });
-    };
-
-    private currentlyCheckingDocumentExtractions = 0;
-    private checkAllDocumentsExtractions = async () => {
-        if (this.currentlyCheckingDocumentExtractions != 0) return;
-        this.currentlyCheckingDocumentExtractions++;
-        this.checkAllDocumentsExtractionsBackgroundJob();
-        const invoices: { invoiceID?: string; doxPositionsJobID?: string; doxLineItemsJobID?: string }[] =
-            await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID, doxLineItemsJobID }`);
-        const storedInvoices: string[] = invoices
-            .filter(
-                async (invoice) =>
-                    (await this.getStoredPositionsForInvoice(invoice.invoiceID)) &&
-                    (await this.getStoredLineItemsForInvoice(invoice.invoiceID))
-            )
-            .map((invoice) => invoice.invoiceID);
-        const waitingFor: string[] = invoices
-            .filter((invoice) => !storedInvoices.includes(invoice.invoiceID))
-            .map((invoice) => invoice.invoiceID);
-        return { storedInvoices: storedInvoices, waitingFor: waitingFor };
-    };
-
-    private areInvoiceExtractionsCompleted = async (req: Request) => {
-        const invoices: { invoiceID?: string; doxPositionsJobID?: string; doxLineItemsJobID?: string }[] =
-            await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID, doxLineItemsJobID }`);
-        const doxConnection = await this.getDoxConnection();
-        const doxResponse: {
-            results: {
-                status: string;
-                id: string;
-                fileName: string;
-                documentType: string;
-                created: string;
-                finished?: string;
-                clientId?: string;
-            }[];
-        } = await doxConnection.send("GET", "/document/jobs");
-        const doxDocumentIDMapToInvoiceID: { [documentID: string]: string } = {};
-        const invoiceDocuments = doxResponse.results.filter((document) => {
-            for (const invoice of invoices)
-                if (invoice.doxPositionsJobID == document.id || invoice.doxLineItemsJobID == document.id) {
-                    doxDocumentIDMapToInvoiceID[document.id] = invoice.invoiceID;
-                    return true;
-                }
-            return false;
-        });
-        let invoicesInfo: { invoiceID: string; status: string }[] = invoiceDocuments.map((invoiceDocument) => {
-            return {
-                invoiceID: doxDocumentIDMapToInvoiceID[invoiceDocument.id],
-                status: invoiceDocument.status
-            };
-        });
-        invoices.forEach((invoice) => {
-            if (!invoicesInfo.find((info) => info.invoiceID == invoice.invoiceID))
-                invoicesInfo.push({ invoiceID: invoice.invoiceID, status: "PENDING" });
-        });
-        const invoicesInfoWithoutDuplicateInvoices: typeof invoicesInfo = Object.values(
-            invoicesInfo.reduce((acc: any, { invoiceID, status }) => {
-                acc[invoiceID] = acc[invoiceID] || { invoiceID, status: "DONE" };
-                if (status === "PENDING") {
-                    acc[invoiceID].status = "PENDING";
-                }
-                return acc;
-            }, {})
+    /* Upload invoice first for dox to extract from it */
+    private doxUploadInvoice = async (invoiceID: string, schemaName?: string) => {
+        const form = await this.doxFormData(
+            invoiceID,
+            {
+                clientId: "default",
+                schemaName: schemaName ?? "SAP_invoice_schema",
+                documentType: schemaName ? "custom" : "invoice"
+            },
+            schemaName ? invoiceID + "-Positions.pdf" : invoiceID + "-LineItems.pdf"
         );
-        const isDocumentProcessedMap: { [invoiceID: string]: boolean } = {};
-        invoicesInfoWithoutDuplicateInvoices.forEach((info: any) => {
-            if (info.status == "DONE") isDocumentProcessedMap[info.invoiceID] = true;
-            else isDocumentProcessedMap[info.invoiceID] = false;
-        });
-        return isDocumentProcessedMap;
-    };
-
-    // easy cache by storing the results in a file on the server
-    private getStoredPositionsForInvoice = async (invoiceID: string) => {
-        let fileContent;
-        try {
-            fileContent = await this.getDOXResultsFromS3(invoiceID, "positions");
-        } catch (err) {}
-        if (fileContent) return JSON.parse(fileContent.toString());
-        return null;
-    };
-
-    private getPositionsOfInvoice = async (invoiceID: string) => {
-        const storedJobID = (
-            await SELECT.from(Invoices).columns(`{ doxPositionsJobID }`).where({ invoiceID: invoiceID })
-        )[0].doxPositionsJobID;
-        if (!storedJobID) throw new Error("No stored job ID found for invoice " + invoiceID);
-
-        const storedPositions = await this.getStoredPositionsForInvoice(invoiceID);
-        if (storedPositions) return { positions: storedPositions, storedLoad: true };
-
-        const path = "/document/jobs/" + storedJobID;
-
         const doxConnection = await this.getDoxConnection();
-        const json = await doxConnection.send("GET", path);
-
-        if (json.status == "PENDING") return { status: "PENDING" };
-        return { positions: json, storedLoad: false };
+        return await doxConnection.send("POST", "/document/jobs", form.getBuffer(), form.getHeaders());
     };
 
-    private getPositionsFromDOX = async (req: Request) => {
-        const { data } = req;
-        const invoiceID: string = data.id;
-        const json = await this.getPositionsOfInvoice(invoiceID);
-
-        return JSON.stringify(this.mapLineItemsToPositions(json.positions.extraction.lineItems));
-    };
-
-    private mapLineItemsToPositions(lineItems: any) {
-        return lineItems.map((lineItemsOfLine: any) => lineItemsOfLine[0]);
-    }
-
-    private async getFormDataForDOXUpload(invoiceID: string, DOX_OPTIONS: object, pdfName: string): Promise<FormData> {
+    private async doxFormData(invoiceID: string, DOX_OPTIONS: object, pdfName: string): Promise<FormData> {
         const formData = new FormData();
         const pdfFile = await this.getPDFById(invoiceID);
         const pdfByteArray = await pdfFile.transformToByteArray();
@@ -629,100 +405,85 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         return formData;
     }
 
-    private currentlyUploadingDocumentForPositions: { [invoiceID: string]: boolean } = {};
-    private uploadToDOXToGetPositions = async (req: Request | { data: { id: string } }) => {
-        const { data } = req;
-        const invoiceID: string = data.id;
-        if (this.currentlyUploadingDocumentForPositions[invoiceID]) return;
-        this.currentlyUploadingDocumentForPositions[invoiceID] = true;
-        const storedJobID = (
-            await SELECT.from(Invoices).columns(`{ doxPositionsJobID }`).where({ invoiceID: invoiceID })
-        )[0].doxPositionsJobID;
-        if (storedJobID && storedJobID != "") return storedJobID;
+    /* Returns ids of invoices which dox has (not) finished analysing just yet */
+    private areInvoiceExtractionsCompleted = async () => {
+        const invs = await SELECT.from(Invoices).columns(`{ invoiceID, doxPositionsJobID, doxLineItemsJobID }`);
+        const jobs = (await (await this.getDoxConnection()).send("GET", "/document/jobs")).results;
+        const ret: { done: string[]; pending: string[] } = { done: [], pending: [] };
+        for (const inv of invs) {
+            const pos = jobs.find((jb: any) => jb.id === inv.doxPositionsJobID);
+            const li = jobs.find((jb: any) => jb.id === inv.doxLineItemsJobID);
 
-        const pdfName: string = invoiceID + "-Positions.pdf";
-        const path = "/document/jobs";
-        const DOX_OPTIONS = {
+            // prettier-ignore
+            pos && pos.status === "DONE" && li && li.status === "DONE" ? ret.done.push(inv.invoiceID) : ret.pending.push(inv.invoiceID);
+        }
+        return ret;
+    };
+
+    private doxGetPositions = async (req: Request) => {
+        const ID = req.data.invoiceID as string;
+        const jobID = (await SELECT.one.from(Invoices, { invoiceID: ID }).columns(`{ doxPositionsJobID }`))
+            .doxPositionsJobID;
+        if (!jobID) req.reject(400, "No job ID found, invoice probably not yet analyzed");
+
+        const resp = await (await this.getDoxConnection()).send("GET", "/document/jobs/" + jobID);
+        return resp.extraction.lineItems.map((item: any) => item[0]);
+    };
+
+    private doxGetLineItems = async (req: Request) => {
+        const ID = req.data.invoiceID as string;
+        const jobID = (await SELECT.one.from(Invoices, { invoiceID: ID }).columns(`{ doxLineItemsJobID }`))
+            .doxLineItemsJobID;
+        const resp = await (await this.getDoxConnection()).send("GET", "/document/jobs/" + jobID);
+        return resp.extraction.lineItems;
+    };
+
+    private doxCreatePositionsSchema = async () => {
+        const schema = {
             clientId: "default",
             documentType: "custom",
-            schemaId: (await this.getDoxSchemaForPositionExtraction())[0].id,
-            enrichtment: {}
+            name: DOX_EXTRA_POSITIONS_SCHEMA,
+            schemaDescription: "Schema to extract the positions of an invoice",
+            documentTypeDescription: "" // is required
         };
-
-        const formData = await this.getFormDataForDOXUpload(invoiceID, DOX_OPTIONS, pdfName);
-
         const doxConnection = await this.getDoxConnection();
-
-        const json = await doxConnection.send("POST", path, formData.getBuffer(), formData.getHeaders());
-
-        const jobID = json.id;
-        await UPDATE(Invoices, invoiceID).with({ doxPositionsJobID: jobID });
-        this.currentlyUploadingDocumentForPositions[invoiceID] = false;
-        return jobID;
-    };
-
-    // easy cache by storing the results in a file on the server
-    private getStoredLineItemsForInvoice = async (invoiceID: string) => {
-        let fileContent;
+        let schemaId;
         try {
-            fileContent = await this.getDOXResultsFromS3(invoiceID, "lineItems");
-        } catch (err) {}
-        if (fileContent) return JSON.parse(fileContent.toString());
-        return null;
-    };
-
-    private getLineItemsOfInvoice = async (invoiceID: string): Promise<any> => {
-        const storedLineItems = await this.getStoredLineItemsForInvoice(invoiceID);
-        if (storedLineItems) return { lineItems: storedLineItems, storedLoad: true };
-        const storedJobID = (
-            await SELECT.from(Invoices).columns(`{ doxLineItemsJobID }`).where({ invoiceID: invoiceID })
-        )[0].doxLineItemsJobID;
-
-        const path = "/document/jobs/" + storedJobID;
-
-        const doxConnection = await this.getDoxConnection();
-        const json = await doxConnection.send("GET", path);
-
-        if (json.status == "PENDING") return { status: "PENDING" };
-        return { lineItems: json, storedLoad: false };
-    };
-
-    private getLineItemsFromDOX = async (req: Request) => {
-        const { data } = req;
-        const invoiceID: string = data.id;
-        const json = await this.getLineItemsOfInvoice(invoiceID);
-        return JSON.stringify(json.lineItems.extraction.lineItems);
-    };
-
-    private currentlyUploadingDocumentForLineItems: { [invoiceID: string]: boolean } = {};
-    private uploadToDOXToGetLineItems = async (req: Request | { data: { id: string } }) => {
-        const { data } = req;
-        const invoiceID: string = data.id;
-        if (this.currentlyUploadingDocumentForLineItems[invoiceID]) return;
-        this.currentlyUploadingDocumentForLineItems[invoiceID] = true;
-        const storedJobID = (
-            await SELECT.from(Invoices).columns(`{ doxLineItemsJobID }`).where({ invoiceID: invoiceID })
-        )[0].doxLineItemsJobID;
-        if (storedJobID && storedJobID != "") return storedJobID;
-
-        const pdfName: string = invoiceID + "-LineItems.pdf";
-        const path = "/document/jobs";
-        const DOX_OPTIONS = {
-            clientId: "default",
-            documentType: "invoice",
-            extraction: { lineItemFields: ["description", "netAmount", "quantity", "unitPrice", "unitOfMeasure"] }
+            const doxResponse: any = await doxConnection.send("POST", "/schemas", schema);
+            schemaId = doxResponse.id;
+        } catch (e) {
+            throw new Error("Failed to create schema. Schema probably already exists");
+        }
+        const payloadToAddPositionLineItem: { headerFields: []; lineItemFields: {}[] } = {
+            headerFields: [],
+            lineItemFields: [
+                {
+                    name: "position",
+                    label: "",
+                    description:
+                        "first column in invoice table. Might need two lines as its column is quite narrow. Examples for positions are 01.01. . .0030 or 02. . . . If after position, there is no description for this position, the position belongs to the last position.",
+                    defaultExtractor: {},
+                    predefined: false,
+                    setupType: "static",
+                    setupTypeVersion: "2.0.0",
+                    setup: { type: "auto", priority: 1 },
+                    formattingType: "string",
+                    formatting: {},
+                    formattingTypeVersion: "1.0.0"
+                }
+            ]
         };
-
-        const formData = await this.getFormDataForDOXUpload(invoiceID, DOX_OPTIONS, pdfName);
-
-        const doxConnection = await this.getDoxConnection();
-        const json = await doxConnection.send("POST", path, formData.getBuffer(), formData.getHeaders());
-
-        const jobID = json.id;
-        await UPDATE(Invoices, invoiceID).with({ doxLineItemsJobID: jobID });
-        this.currentlyUploadingDocumentForLineItems[invoiceID] = false;
-        return jobID;
+        await doxConnection.send(
+            "POST",
+            "/schemas/" + schemaId + "/versions/1/fields?clientId=default",
+            payloadToAddPositionLineItem
+        );
+        await doxConnection.send("POST", "/schemas/" + schemaId + "/versions/1/activate?clientId=default");
     };
+
+    private getDoxConnection = () => cds.connect.to(DOX_DESTINATION_PREMIUM);
+
+    /* ------------------------------------------ */
 
     /* Track previous versions of a deduction, including the latest one */
     private recordLatestDeduction = async (results: any) => {
@@ -749,8 +510,6 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
         ]);
     };
 
-    /* HELPERS */
-
     private getNextFlowStatus = (roleNewCV: Roles) => {
         switch (roleNewCV) {
             case Roles.EXTERNAL_VALIDATOR:
@@ -761,30 +520,4 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
                 return "";
         }
     };
-}
-
-interface Item {
-    name: string;
-    category: string;
-    value: string;
-    rawValue: string;
-    type: string;
-    page: number;
-    confidence: number;
-    coordinates: Coordinates;
-    label: string;
-    index?: number;
-}
-
-interface Coordinates {
-    x: number;
-    y: number;
-}
-
-interface InputObject {
-    lineItems: Item[][];
-}
-
-interface OutputObject {
-    lineItems: Item[];
 }
