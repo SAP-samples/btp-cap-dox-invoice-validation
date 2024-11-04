@@ -146,7 +146,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
     private setCV = async (req: Request) => {
         const requestorUserId = req.user.id;
         const { projectId, idNewCV, invoiceId } = req.data;
-        const invoice = (await SELECT.one.from(Invoices, invoiceId)) as Invoice;
+        const invoice = (await SELECT.one.from(Invoices, { invoiceID: invoiceId })) as Invoice;
         // @ts-ignore
         const isCV = invoice.CV_user_ID === requestorUserId;
         if (isCV && idNewCV) {
@@ -164,7 +164,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
             ).role;
             if (requestorProjectRole !== newCVProjectRole) {
                 // actually set new CV
-                await UPDATE(Invoices, invoiceId).with({ CV_user_ID: idNewCV });
+                await UPDATE(Invoices, { invoiceID: invoiceId }).with({ CV_user_ID: idNewCV });
                 const nextStatus = this.getNextFlowStatus(newCVProjectRole);
                 const result = await INSERT.into(FlowStatuses, [
                     {
@@ -219,7 +219,7 @@ export class InvoiceAssessmentService extends cds.ApplicationService {
             const idFlowStatus = [...result][0].ID;
             newFlowStatus = await SELECT.one.from(FlowStatuses, idFlowStatus);
             // invoice has reached end of worklfow => does not have current validator anymore
-            await UPDATE(Invoices, invoiceId).with({ CV_user_ID: null, CV_project_ID: null });
+            await UPDATE(Invoices, { invoiceID: invoiceId }).with({ CV_user_ID: null, CV_project_ID: null });
         }
         if (status === "ACCEPTED") {
             log.accept(req.user.id);
