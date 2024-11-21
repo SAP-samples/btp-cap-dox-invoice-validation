@@ -321,10 +321,11 @@ export default function InvoiceDetails() {
     const activeView: JSX.Element = getDedicatedView(viewState);
     const i18n = useI18nBundle("app");
     let translatedStatus = "";
+    let flowStatus;
     if (Object.keys(invoiceDetails).includes("statuses")) {
         const workflowStatuses = invoiceDetails.statuses as FlowStatuses;
-        const currentStatus = getCurrentFlowStatus(workflowStatuses);
-        const translationKey = WORKFLOW_STATUS_I18N_KEY_MAPPING[currentStatus] as string;
+        flowStatus = getCurrentFlowStatus(workflowStatuses);
+        const translationKey = WORKFLOW_STATUS_I18N_KEY_MAPPING[flowStatus] as string;
         translatedStatus = i18n.getText({ key: translationKey, defaultText: "" });
     }
     let confirmInvoiceStatusMessage = "";
@@ -541,18 +542,20 @@ export default function InvoiceDetails() {
                                     {translatedStatus}
                                 </ObjectStatus>
                             </FlexBox>
-                            <FlexBox direction="Column" style={spacing.sapUiMediumMarginBegin}>
-                                <Label>{i18n.getText({ key: "validatorStatus", defaultText: "" })}</Label>
-                                <ObjectStatus
-                                    style={spacing.sapUiTinyMarginTop}
-                                    showDefaultIcon
-                                    state={isCVState ? "Information" : "Warning"}
-                                >
-                                    {isCVState
-                                        ? i18n.getText({ key: "isCV", defaultText: "" })
-                                        : i18n.getText({ key: "isNotCV", defaultText: "" })}
-                                </ObjectStatus>
-                            </FlexBox>
+                            {flowStatus !== WorkflowStatus.ACCEPTED && flowStatus !== WorkflowStatus.REJECTED && (
+                                <FlexBox direction="Column" style={spacing.sapUiMediumMarginBegin}>
+                                    <Label>{i18n.getText({ key: "validatorStatus", defaultText: "" })}</Label>
+                                    <ObjectStatus
+                                        style={spacing.sapUiTinyMarginTop}
+                                        showDefaultIcon
+                                        state={isCVState ? "Information" : "Warning"}
+                                    >
+                                        {isCVState
+                                            ? i18n.getText({ key: "isCV", defaultText: "" })
+                                            : i18n.getText({ key: "isNotCV", defaultText: "" })}
+                                    </ObjectStatus>
+                                </FlexBox>
+                            )}
                             <FlexBox direction="Column" style={spacing.sapUiMediumMarginBegin}>
                                 <Label>{i18n.getText({ key: "grossAmount", defaultText: "" })}</Label>
                                 <Text
