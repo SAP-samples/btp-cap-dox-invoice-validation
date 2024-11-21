@@ -30,7 +30,8 @@ export default function PostionsCard({
     setViewState,
     isCVState,
     setDialogState,
-    navigateToPositionInPDF
+    navigateToPositionInPDF,
+    isInvoiceImmutable
 }: {
     positions: Positions;
     setPositions: Dispatch<SetStateAction<Positions>>;
@@ -46,6 +47,7 @@ export default function PostionsCard({
         }>
     >;
     navigateToPositionInPDF: ((props: any) => void) | null;
+    isInvoiceImmutable: boolean;
 }) {
     const i18n = useI18nBundle("app");
     const { isAdmin } = useContext(UserContext);
@@ -177,7 +179,7 @@ export default function PostionsCard({
                 accessor: `changedBy`
             }
         ];
-        if (isCVState || isUserAdmin) {
+        if (!isInvoiceImmutable && (isCVState || isUserAdmin)) {
             columns.push({
                 Header: ``,
                 accessor: `buttons`,
@@ -231,7 +233,7 @@ export default function PostionsCard({
                         <Title level="H5" style={spacing.sapUiTinyMarginBegin}>
                             {i18n.getText({ key: "positionCorrections", defaultText: "" })}
                         </Title>
-                        {(isCVState || isUserAdmin) && (
+                        {!isInvoiceImmutable && (isCVState || isUserAdmin) && (
                             <>
                                 <ToolbarSpacer />
                                 <Button

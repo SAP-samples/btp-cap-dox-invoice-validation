@@ -29,7 +29,8 @@ export default function InvoiceCorrection({
     retentions,
     setRetentions,
     setDialogState,
-    navigateToPositionInPDF
+    navigateToPositionInPDF,
+    isInvoiceImmutable
 }: {
     invoice: Invoice;
     positions: Positions;
@@ -54,6 +55,7 @@ export default function InvoiceCorrection({
         }>
     >;
     navigateToPositionInPDF: ((props: any) => void) | null;
+    isInvoiceImmutable: boolean;
 }) {
     const retentionsTotal: number = retentions.reduce(
         (total: number, current: Retention) => total + (current.amount || 0),
@@ -78,6 +80,7 @@ export default function InvoiceCorrection({
                 isCVState={isCVState}
                 setDialogState={setDialogState}
                 navigateToPositionInPDF={navigateToPositionInPDF}
+                isInvoiceImmutable={isInvoiceImmutable}
             />
             <DeductionsCard
                 deductions={deductions}
@@ -87,6 +90,7 @@ export default function InvoiceCorrection({
                 handleChangeDeductionCorrectionClick={handleChangeDeductionCorrectionClick}
                 isCVState={isCVState}
                 setDialogState={setDialogState}
+                isInvoiceImmutable={isInvoiceImmutable}
             />
             <RetentionsCard
                 retentions={retentions}
@@ -96,6 +100,7 @@ export default function InvoiceCorrection({
                 setViewState={setViewState}
                 isCVState={isCVState}
                 setDialogState={setDialogState}
+                isInvoiceImmutable={isInvoiceImmutable}
             />
             <DocumentsCard
                 additionalDocuments={additionalDocuments}
@@ -103,6 +108,7 @@ export default function InvoiceCorrection({
                 invoice={invoice}
                 isCVState={isCVState}
                 setDialogState={setDialogState}
+                isInvoiceImmutable={isInvoiceImmutable}
             />
         </>
     );

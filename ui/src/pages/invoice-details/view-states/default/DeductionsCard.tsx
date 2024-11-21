@@ -29,7 +29,8 @@ export default function DeductionsCard({
     deductionsTotal,
     handleChangeDeductionCorrectionClick,
     isCVState,
-    setDialogState
+    setDialogState,
+    isInvoiceImmutable
 }: {
     deductions: Deductions;
     setDeductions: Dispatch<SetStateAction<Deductions>>;
@@ -44,6 +45,7 @@ export default function DeductionsCard({
             onConfirm: () => void;
         }>
     >;
+    isInvoiceImmutable: boolean;
 }) {
     const i18n = useI18nBundle("app");
     const { isAdmin } = useContext(UserContext);
@@ -105,7 +107,7 @@ export default function DeductionsCard({
                 accessor: "changedBy"
             }
         ];
-        if (isCVState || isUserAdmin) {
+        if (!isInvoiceImmutable && (isCVState || isUserAdmin)) {
             columns.push({
                 Header: ``,
                 accessor: `buttons`,
@@ -155,7 +157,7 @@ export default function DeductionsCard({
                             <Title level="H5" style={spacing.sapUiTinyMarginBegin}>
                                 {i18n.getText({ key: "deductions", defaultText: "" })}
                             </Title>
-                            {(isCVState || isUserAdmin) && (
+                            {!isInvoiceImmutable && (isCVState || isUserAdmin) && (
                                 <>
                                     <ToolbarSpacer />
                                     <Button

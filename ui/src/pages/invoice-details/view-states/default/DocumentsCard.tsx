@@ -41,7 +41,8 @@ export default function DocumentsCard({
     setAdditionalDocuments,
     invoice,
     isCVState,
-    setDialogState
+    setDialogState,
+    isInvoiceImmutable
 }: {
     additionalDocuments: Documents;
     setAdditionalDocuments: Dispatch<SetStateAction<Documents>>;
@@ -54,6 +55,7 @@ export default function DocumentsCard({
             onConfirm: () => void;
         }>
     >;
+    isInvoiceImmutable: boolean;
 }) {
     const i18n = useI18nBundle("app");
     const { isAdmin } = useContext(UserContext);
@@ -167,7 +169,7 @@ export default function DocumentsCard({
                 accessor: "uploadedBy"
             }
         ];
-        if (isCVState || isUserAdmin) {
+        if (!isInvoiceImmutable && (isCVState || isUserAdmin)) {
             columns.push({
                 Cell: (instance: CellInstance) => (
                     <DeleteButton
@@ -211,7 +213,7 @@ export default function DocumentsCard({
                         <Title level={"H5"} style={{ ...spacing.sapUiTinyMarginBegin }}>
                             {i18n.getText({ key: "allDocuments", defaultText: "" })}
                         </Title>
-                        {(isCVState || isUserAdmin) && (
+                        {!isInvoiceImmutable && (isCVState || isUserAdmin) && (
                             <>
                                 <ToolbarSpacer />
                                 <UploadDocumentButton />

@@ -29,7 +29,8 @@ export default function RetentionsCard({
     handleChangeRetentionClick,
     setViewState,
     isCVState,
-    setDialogState
+    setDialogState,
+    isInvoiceImmutable
 }: {
     retentions: Retentions;
     setRetentions: Dispatch<SetStateAction<Retentions>>;
@@ -44,6 +45,7 @@ export default function RetentionsCard({
             onConfirm: () => void;
         }>
     >;
+    isInvoiceImmutable: boolean;
 }) {
     const i18n = useI18nBundle("app");
     const { isAdmin } = useContext(UserContext);
@@ -100,7 +102,7 @@ export default function RetentionsCard({
                 accessor: "changedBy"
             }
         ];
-        if (isCVState || isUserAdmin) {
+        if (!isInvoiceImmutable && (isCVState || isUserAdmin)) {
             columns.push({
                 Header: ``,
                 accessor: `buttons`,
@@ -150,7 +152,7 @@ export default function RetentionsCard({
                             <Title level="H5" style={spacing.sapUiTinyMarginBegin}>
                                 {i18n.getText({ key: "retentions", defaultText: "" })}
                             </Title>
-                            {(isCVState || isUserAdmin) && (
+                            {!isInvoiceImmutable && (isCVState || isUserAdmin) && (
                                 <>
                                     <ToolbarSpacer />
                                     <Button

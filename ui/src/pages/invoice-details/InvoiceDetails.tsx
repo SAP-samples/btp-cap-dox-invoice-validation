@@ -230,6 +230,44 @@ export default function InvoiceDetails() {
         onConfirm: () => {}
     });
 
+    const i18n = useI18nBundle("app");
+    let translatedStatus = "";
+    let isInvoiceImmutable = true;
+    if (Object.keys(invoiceDetails).includes("statuses")) {
+        const workflowStatuses = invoiceDetails.statuses as FlowStatuses;
+        const status = getCurrentFlowStatus(workflowStatuses);
+        isInvoiceImmutable = status === WorkflowStatus.ACCEPTED || status === WorkflowStatus.REJECTED;
+        const translationKey = WORKFLOW_STATUS_I18N_KEY_MAPPING[status] as string;
+        translatedStatus = i18n.getText({ key: translationKey, defaultText: "" });
+    }
+    let confirmInvoiceStatusMessage = "";
+    if (selectedFinalInvoiceStatus) {
+        let placeholderInserted = "";
+        if (selectedFinalInvoiceStatus === WorkflowStatus.ACCEPTED) {
+            // string interpolation of translation string
+            placeholderInserted = i18n.getText({ key: "accept", defaultText: "" });
+        } else {
+            placeholderInserted = i18n.getText({ key: "reject", defaultText: "" });
+        }
+        confirmInvoiceStatusMessage = i18n.getText(
+            { key: "confirmInvoiceStatus", defaultText: "" },
+            placeholderInserted.toLowerCase()
+        );
+    }
+
+    let possibleNewCV: Projects_Users = [];
+    let hasAccountingMemberRole = false;
+    let hasExternalValidatorRole = false;
+    if (Object.keys(invoiceDetails).includes("project")) {
+        const projectStaff = invoiceDetails.project?.users as Projects_Users;
+        possibleNewCV = deriveListOfPossibleCV(projectStaff);
+        // @ts-ignore
+        if (isCV(invoiceDetails.CV_user_ID as string) && !isCVState) setIsCVState(true);
+        const projectId = invoiceDetails.project?.ID as string;
+        hasAccountingMemberRole = isAccountingMember(projectId);
+        hasExternalValidatorRole = isExternalValidator(projectId);
+    }
+
     function getDedicatedView(viewState: ViewState): JSX.Element {
         switch (viewState) {
             case ViewState.ADD_NEW_POSITION:
@@ -313,48 +351,13 @@ export default function InvoiceDetails() {
                         totalCorrection={totalCorrection}
                         setDialogState={setDialogState}
                         navigateToPositionInPDF={navigateToPositionInPDF}
+                        isInvoiceImmutable={isInvoiceImmutable}
                     />
                 );
         }
     }
 
     const activeView: JSX.Element = getDedicatedView(viewState);
-    const i18n = useI18nBundle("app");
-    let translatedStatus = "";
-    let flowStatus;
-    if (Object.keys(invoiceDetails).includes("statuses")) {
-        const workflowStatuses = invoiceDetails.statuses as FlowStatuses;
-        flowStatus = getCurrentFlowStatus(workflowStatuses);
-        const translationKey = WORKFLOW_STATUS_I18N_KEY_MAPPING[flowStatus] as string;
-        translatedStatus = i18n.getText({ key: translationKey, defaultText: "" });
-    }
-    let confirmInvoiceStatusMessage = "";
-    if (selectedFinalInvoiceStatus) {
-        let placeholderInserted = "";
-        if (selectedFinalInvoiceStatus === WorkflowStatus.ACCEPTED) {
-            // string interpolation of translation string
-            placeholderInserted = i18n.getText({ key: "accept", defaultText: "" });
-        } else {
-            placeholderInserted = i18n.getText({ key: "reject", defaultText: "" });
-        }
-        confirmInvoiceStatusMessage = i18n.getText(
-            { key: "confirmInvoiceStatus", defaultText: "" },
-            placeholderInserted.toLowerCase()
-        );
-    }
-
-    let possibleNewCV: Projects_Users = [];
-    let hasAccountingMemberRole = false;
-    let hasExternalValidatorRole = false;
-    if (Object.keys(invoiceDetails).includes("project")) {
-        const projectStaff = invoiceDetails.project?.users as Projects_Users;
-        possibleNewCV = deriveListOfPossibleCV(projectStaff);
-        // @ts-ignore
-        if (isCV(invoiceDetails.CV_user_ID as string) && !isCVState) setIsCVState(true);
-        const projectId = invoiceDetails.project?.ID as string;
-        hasAccountingMemberRole = isAccountingMember(projectId);
-        hasExternalValidatorRole = isExternalValidator(projectId);
-    }
 
     // PAGE SPLITTER
 
@@ -542,7 +545,7 @@ export default function InvoiceDetails() {
                                     {translatedStatus}
                                 </ObjectStatus>
                             </FlexBox>
-                            {flowStatus !== WorkflowStatus.ACCEPTED && flowStatus !== WorkflowStatus.REJECTED && (
+                            {!isInvoiceImmutable && (
                                 <FlexBox direction="Column" style={spacing.sapUiMediumMarginBegin}>
                                     <Label>{i18n.getText({ key: "validatorStatus", defaultText: "" })}</Label>
                                     <ObjectStatus
@@ -642,6 +645,7 @@ export default function InvoiceDetails() {
                                 positions={positions}
                                 setCorrectionSession={setCorrectionSession}
                                 isCVState={isCVState}
+                                isInvoiceImmutable={isInvoiceImmutable}
                             />
                         </div>
                     </SplitterElement>

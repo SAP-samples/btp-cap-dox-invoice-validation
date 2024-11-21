@@ -34,7 +34,8 @@ export default function AnnotatedPDFViewer({
     setNavigateToPositionInPDF,
     positions,
     setCorrectionSession,
-    isCVState
+    isCVState,
+    isInvoiceImmutable
 }: {
     width: number;
     pdfBytes: PdfBytes | undefined;
@@ -47,6 +48,7 @@ export default function AnnotatedPDFViewer({
     positions: Positions;
     setCorrectionSession: React.Dispatch<React.SetStateAction<CorrectionSession>>;
     isCVState: boolean;
+    isInvoiceImmutable: boolean;
 }) {
     const [pdfAnnotations, setPdfAnnotations] = useState<JSX.Element[]>();
 
@@ -157,24 +159,26 @@ export default function AnnotatedPDFViewer({
     };
 
     useEffect(() => {
-        getBoxesToDisplay()
-            .then((boxes) => {
-                setPdfAnnotations(() => {
-                    return boxes;
-                });
-                setNavigateToPositionInPDF(() => {
-                    return (props: any) => {
-                        const element = document.getElementById("marker" + props.cell.value);
-                        if (!element) return;
-                        element.scrollIntoView({ behavior: "instant", block: "start" });
-                        pdfScrollbarRef.current!.scrollTo({
-                            top: pdfScrollbarRef.current!.scrollTop - 20,
-                            behavior: "instant"
-                        });
-                    };
-                });
-            })
-            .catch((err) => console.log(err));
+        if (!isInvoiceImmutable) {
+            getBoxesToDisplay()
+                .then((boxes) => {
+                    setPdfAnnotations(() => {
+                        return boxes;
+                    });
+                    setNavigateToPositionInPDF(() => {
+                        return (props: any) => {
+                            const element = document.getElementById("marker" + props.cell.value);
+                            if (!element) return;
+                            element.scrollIntoView({ behavior: "instant", block: "start" });
+                            pdfScrollbarRef.current!.scrollTo({
+                                top: pdfScrollbarRef.current!.scrollTop - 20,
+                                behavior: "instant"
+                            });
+                        };
+                    });
+                })
+                .catch((err) => console.log(err));
+        }
     }, [positions]);
 
     return (
