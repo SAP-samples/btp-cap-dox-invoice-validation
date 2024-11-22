@@ -113,7 +113,6 @@ resources:
           service-plan: application
           path: ./xs-security.json
           config:
-              xsappname: dox-invoice-validation-${org}-${space}
               tenant-mode: dedicated
     # -------------------- DESTINATION SERVICE -------------------
     - name: dox-invoice-validation-api-dest
