@@ -1,6 +1,6 @@
 ## Overview
 
-This section illustrates setting up the landscape as the first step before deploying the your application to BTP. To automate the setup we would suggest using the provided Terraform scripts. The setup can also be done manually using the BTP cockpit aswell.
+This section illustrates setting up the landscape as the first step before deploying your application to BTP. To automate the setup we would suggest using the provided Terraform scripts. The setup can also be done manually using the BTP cockpit aswell.
 
 ## Prerequisites
 
