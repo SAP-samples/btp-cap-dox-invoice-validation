@@ -23,10 +23,11 @@ It adds the following entitlements, in addition to the ones which are enabled by
 
 | Service Name                          | Service Plan     |
 |---------------------------------------|------------------|
-| hana-cloud                            | hana             |
-| objectstore                           | standard         |
-| sap-document-information-extraction   | premium_edition  |
-| APPLICATION_RUNTIME                   | MEMORY           |
+| SAP HANA Cloud                        | hana             |
+| SAP HANA Schemas & HDI Containers     | hdi-shared       |
+| Object Store                          | s3-standard      |
+| Document Information Extraction       | premium_edition  |
+| Cloud Foundry Runtime                 | MEMORY           |
 
 Your BTP space will need at least 4 GB of memory to run the apps which you will deploy later.
 
