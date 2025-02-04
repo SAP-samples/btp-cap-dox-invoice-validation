@@ -11,14 +11,12 @@ The **Sequence of Interactions** looks like:
 
 1. The **SAP Cloud Application Programming Model (CAP)** backend fetches the invoices from the **BTP Object Store** Service, marking the beginning of the sequence of interactions.
 2. After being fetched, each invoice is uploaded to the **SAP Document Information Extraction (DOX)** Service. With its powerful API, the service leverages **Generative Artificial Intelligence (GenAI)** to extract structured and meaningful data from documents such as invoices, going far beyond typical **Optical Character Recognition (OCR)** scanned text documents.
-3. The **SAP Document Information Extraction (DOX)** Service processes the invoice and returns a unique job ID along with a status code indicating that the extraction is in progress. At this point, the backend initiates a periodic interval to check the processing status every 10 seconds for up to 3 minutes.
+3. The **SAP Document Information Extraction (DOX)** Service processes the invoice and returns a unique job ID along with a status code indicating that the extraction is in progress.
 4. The **SAP Document Information Extraction (DOX)** Service' job ID is stored in the **SAP HANA Cloud** Database. This database holds all invoice related information, including the job IDs, metadata of the invoices, and invoice correction data, thereby enabling retrieval of document extraction later on.
-5. Once the invoice is processed, the job ID is retrieved from the **SAP HANA Cloud** Database.
-6. The backend then requests the extraction data from the **SAP Document Information Extraction (DOX)** Service using the job ID.
-7. When the invoice information extraction is complete, the **SAP Document Information Extraction (DOX)** Service returns the result in a structured JSON format.
-8. The backend stores the invoice information extractions in the **BTP Object Store** Service.
-9. When a user accesses the application front end (**UI5 Web Components for React**), it fetches the extraction data of a specific invoice from the backend.
-10. The stored invoice information extractions are retrieved from the **BTP Object Store** Service.
-11. The extracted invoice information is sent back to the application front end.
+5. Once an invoice has been processed, it is available for use in the front-end, which then calls the **SAP Cloud Application Programming Model (CAP)** backend on demand to get the invoice information extraction results.
+6. The backend then requests the job ID from the **SAP HANA Cloud** Database using the invoice ID.
+7. With the job ID of the invoice the backend then requests the invoice information extraction data from the **SAP Document Information Extraction (DOX)** Service.
+8. The **SAP Document Information Extraction (DOX)** Service returns the invoice information extraction in a structured JSON format.
+9. The extracted invoice information is sent back to the application front end.
 
 The extractions then populate invoice values in the UI, enhancing the user experience during invoice validation. If the extraction is not finished, the invoice appears greyed out, indicating it's not ready yet for validation.
