@@ -1,7 +1,5 @@
-import cflog from "cf-nodejs-logging-support";
-import RootLogger from "cf-nodejs-logging-support/build/main/lib/logger/rootLogger";
+import cds from "@sap/cds";
 
-const CUSTOM_FIELDS = ["keyword", "by", "email_sent_to", "role"];
 enum Keywords {
     FORWARD = "FORWARD",
     ACCEPTED = "ACCEPTED",
@@ -10,18 +8,10 @@ enum Keywords {
 }
 
 class WorkflowLogger {
-    log: RootLogger;
-
-    constructor() {
-        this.log = cflog;
-        // to see format which is used for application-logging service later
-        // @ts-ignore
-        this.log.setCustomFieldsFormat("application-logging");
-        this.log.registerCustomFields(CUSTOM_FIELDS);
-    }
+    private logger = cds.log("workflow");
 
     forward(by: string, to: string) {
-        this.log.info(`${Keywords.FORWARD}: Invoice has been forwarded to validate by ${by}. Email sent to ${to}`, {
+        this.logger.info(`${Keywords.FORWARD}: Invoice has been forwarded to validate by ${by}. Email sent to ${to}`, {
             keyword: Keywords.FORWARD,
             by: by,
             email_sent_to: to
@@ -29,14 +19,17 @@ class WorkflowLogger {
     }
 
     accept(to: string) {
-        this.log.info(`${Keywords.ACCEPTED}: Invoice has been validated and accepted. Email sent to ${to} to inform `, {
-            keyword: Keywords.ACCEPTED,
-            email_sent_to: to
-        });
+        this.logger.info(
+            `${Keywords.ACCEPTED}: Invoice has been validated and accepted. Email sent to ${to} to inform `,
+            {
+                keyword: Keywords.ACCEPTED,
+                email_sent_to: to
+            }
+        );
     }
 
     reject(to: string) {
-        this.log.info(
+        this.logger.info(
             `${Keywords.REJECTED}: Invoice has been validated and rejected. Email sent to ${to} to restart validation.`,
             {
                 keyword: Keywords.ACCEPTED,
@@ -46,7 +39,7 @@ class WorkflowLogger {
     }
 
     assign(project: string, role: string, user: string) {
-        this.log.info(
+        this.logger.info(
             `${Keywords.ADMIN}: you have been assigned to ${project} project in the ${role} role . Email sent to ${user} to inform.`,
             {
                 keyword: Keywords.ADMIN,
@@ -58,61 +51,58 @@ class WorkflowLogger {
     }
 
     revoke(role: string, user: string) {
-        this.log.info(`${Keywords.ADMIN}: you have been revoked from ${role} role. Email sent to ${user} to inform.`, {
-            keyword: Keywords.ADMIN,
-            role: role,
-            email_sent_to: user
-        });
+        this.logger.info(
+            `${Keywords.ADMIN}: you have been revoked from ${role} role. Email sent to ${user} to inform.`,
+            {
+                keyword: Keywords.ADMIN,
+                role: role,
+                email_sent_to: user
+            }
+        );
     }
 
     newPosition() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`New position correction entered`);
+        this.logger.trace(`New position correction entered`);
     }
 
     newDeduction() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`New Deduction correction created`);
+        this.logger.trace(`New Deduction correction created`);
     }
 
     newRetention() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`New Retention correction entered`);
+        this.logger.trace(`New Retention correction entered`);
     }
 
     changedPosition() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`Changed Position`);
+        this.logger.trace(`Changed Position`);
     }
 
     changedDeduction() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`Changed Deduction`);
+        this.logger.trace(`Changed Deduction`);
     }
 
     changedRetention() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`Changed Retention`);
+        this.logger.trace(`Changed Retention`);
     }
 
     deletedPosition() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`Deleted Position`);
+        this.logger.trace(`Deleted Position`);
     }
 
     deletedDeduction() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`Deleted Deduction`);
+        this.logger.trace(`Deleted Deduction`);
     }
 
     deletedRetention() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`Deleted Retention`);
+        this.logger.trace(`Deleted Retention`);
     }
 
     documentsUploaded() {
-        this.log.setLoggingLevel("VERBOSE");
-        this.log.verbose(`Document uploaded`);
+        this.logger.trace(`Document uploaded`);
+    }
+
+    get raw() {
+        return this.logger;
     }
 }
 
