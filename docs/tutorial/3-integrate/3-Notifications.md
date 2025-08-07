@@ -24,7 +24,7 @@ Additionally, there are situations where **trace notifications** could be trigge
 -   A document is uploaded
 -   A snapshot is downloaded
 
-For demo purposes, we simulated this idea to send out notifications, in that we write logs through the [CAP's native CDS logger](https://cap.cloud.sap/docs/node.js/cds-log#cds-log-logger) in those situations. Here are a few examples:
+For demo purposes, we simulated this idea to send out notifications, in that we write logs through the [CAP native CDS logger](https://cap.cloud.sap/docs/node.js/cds-log#cds-log-logger) in those situations. Here are a few examples:
 
 **FORWARD** an invoice:
 
