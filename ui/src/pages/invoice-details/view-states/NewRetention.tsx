@@ -12,7 +12,7 @@ import {
 import { spacing, useI18nBundle } from "@ui5/webcomponents-react-base";
 import React, { MouseEventHandler, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import CurrencyFormat from "react-currency-format";
+import { NumericFormat } from "react-number-format";
 
 import { Invoice, Retention, Retentions } from "@entities";
 import { BASE_URL_CAP } from "@/constants";
@@ -96,7 +96,7 @@ export default function NewRetention({
                 </TableColumn>
                 <TableRow>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "6.5rem", height: "2rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}

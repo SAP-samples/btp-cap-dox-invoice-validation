@@ -16,7 +16,7 @@ import {
 import { spacing, useI18nBundle } from "@ui5/webcomponents-react-base";
 import { useState, useMemo, useEffect } from "react";
 import "@ui5/webcomponents/dist/features/InputElementsFormSupport.js";
-import CurrencyFormat from "react-currency-format";
+import { NumericFormat } from "react-number-format";
 
 import { Position, Positions, PositionCorrection } from "@entities";
 import { BASE_URL_CAP } from "@/constants";
@@ -185,7 +185,7 @@ export default function ChangePositionCorrection({
                 </TableColumn>
                 <TableRow>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "5rem", height: "1.8rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -200,7 +200,7 @@ export default function ChangePositionCorrection({
                         />
                     </TableCell>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "6.5rem", height: "1.8rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -215,7 +215,7 @@ export default function ChangePositionCorrection({
                         />
                     </TableCell>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             displayType={"text"}
                             thousandSeparator={"."}
                             decimalSeparator={","}

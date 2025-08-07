@@ -14,7 +14,7 @@ import {
 import { spacing, useI18nBundle } from "@ui5/webcomponents-react-base";
 import { MouseEventHandler, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import CurrencyFormat from "react-currency-format";
+import { NumericFormat } from "react-number-format";
 
 import { BASE_URL_CAP } from "@/constants";
 import { Deduction, Deductions, Invoice } from "@entities";
@@ -162,7 +162,7 @@ export default function NewDeductionInsertion({
                         />
                     </TableCell>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "6.5rem", height: "2rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}

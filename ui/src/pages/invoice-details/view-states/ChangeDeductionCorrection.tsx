@@ -14,7 +14,7 @@ import {
 } from "@ui5/webcomponents-react";
 import { spacing, useI18nBundle } from "@ui5/webcomponents-react-base";
 import { useEffect, useMemo, useState } from "react";
-import CurrencyFormat from "react-currency-format";
+import { NumericFormat } from "react-number-format";
 
 import { Deduction, DeductionVersion, DeductionVersions, Deductions } from "@entities";
 import { formatDate } from "@/formatters";
@@ -155,7 +155,7 @@ export default function ChangeDeductionCorrection({
                 </TableColumn>
                 <TableRow>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "6.5rem", height: "2rem", padding: "0 0.5rem" }}
                             value={insertedDeduction.amount}
                             thousandSeparator={"."}
