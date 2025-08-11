@@ -18,7 +18,7 @@ import {
 import { MessageStrip } from "@ui5/webcomponents-react";
 import { spacing, useI18nBundle } from "@ui5/webcomponents-react-base";
 import { v4 as uuidv4 } from "uuid";
-import CurrencyFormat from "react-currency-format";
+import { NumericFormat } from "react-number-format";
 
 import { BASE_URL_CAP } from "@/constants";
 import { Positions } from "@entities";
@@ -224,7 +224,7 @@ export default function NewPositionInsertion({
                 </TableColumn>
                 <TableRow>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "5rem", height: "1.8rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -243,7 +243,7 @@ export default function NewPositionInsertion({
                         />
                     </TableCell>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "6.5rem", height: "1.8rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -262,7 +262,7 @@ export default function NewPositionInsertion({
                         />
                     </TableCell>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             displayType={"text"}
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -295,7 +295,7 @@ export default function NewPositionInsertion({
                 </TableColumn>
                 <TableRow>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "5rem", height: "1.8rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -310,7 +310,7 @@ export default function NewPositionInsertion({
                         />
                     </TableCell>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             style={{ width: "6.5rem", height: "1.8rem", padding: "0 0.5rem" }}
                             thousandSeparator={"."}
                             decimalSeparator={","}
@@ -325,7 +325,7 @@ export default function NewPositionInsertion({
                         />
                     </TableCell>
                     <TableCell>
-                        <CurrencyFormat
+                        <NumericFormat
                             displayType={"text"}
                             thousandSeparator={"."}
                             decimalSeparator={","}

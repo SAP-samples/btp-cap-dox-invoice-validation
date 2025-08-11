@@ -14,8 +14,8 @@
         "@ui5/webcomponents-icons": "~1.24.0",
         "@ui5/webcomponents-react": "^1.29.5",
         "react": "^18.3.1",
-        "react-currency-format": "^1.1.0",
         "react-dom": "^18.3.1",
+        "react-number-format": "^5.4.4",
         "react-pdf": "^9.1.0",
         "react-router-dom": "^6.25.1",
         "uuid": "^10.0.0"
@@ -23,7 +23,6 @@
     "devDependencies": {
         "@types/node": "^22.0.0",
         "@types/react": "^18.3.3",
-        "@types/react-currency-format": "^1.0.4",
         "@types/react-dom": "^18.3.0",
         "@types/uuid": "^10.0.0",
         "@vitejs/plugin-react": "^4.3.1",

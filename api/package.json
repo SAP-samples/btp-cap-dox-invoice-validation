@@ -15,11 +15,10 @@
     "dependencies": {
         "@aws-sdk/client-s3": "^3.621.0",
         "@sap-cloud-sdk/openapi": "^3.17.0",
-        "@sap/cds": "^8.1.0",
+        "@sap/cds": "^8.9.6",
         "@sap/cds-hana": "^2",
-        "@sap/xsenv": "^5.2.0",
+        "@sap/xsenv": "^6.0.0",
         "@sap/xssec": "^4.2.1",
-        "cf-nodejs-logging-support": "^7.3.0",
         "express": "^4.19.2",
         "hdb": "^0.19.8",
         "passport": "^0.7.0"

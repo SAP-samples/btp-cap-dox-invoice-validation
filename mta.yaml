@@ -128,9 +128,3 @@ resources:
       parameters:
           service: objectstore
           service-plan: s3-standard
-    # -------------------- Application Logging -------------------
-    - name: dox-invoicing-logging
-      # ------------------------------------------------------------
-      type: application-logs
-      parameters:
-          service-plan: lite

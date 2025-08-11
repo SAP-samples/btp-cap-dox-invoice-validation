@@ -108,9 +108,6 @@ data "btp_subaccount_service_plan" "document_information_extraction_service" {
     name          = "premium_edition"
     offering_name = "sap-document-information-extraction"
 }
-data "cloudfoundry_service" "application_logging" {
-    name = "application-logs"
-}
 
 data "cloudfoundry_service" "objectstore_service" {
     name       = "objectstore"
@@ -153,12 +150,6 @@ resource "btp_subaccount_service_instance" "dox" {
     subaccount_id  = btp_subaccount.subaccount_name.id
     serviceplan_id = data.btp_subaccount_service_plan.document_information_extraction_service.id
     name           = "sap-document-information-extraction"
-}
-
-resource "cloudfoundry_service_instance" "application_log_service" {
-    name         = "sap-application-logging-service"
-    space        = cloudfoundry_space.space.id
-    service_plan = data.cloudfoundry_service.application_logging.service_plans["lite"]
 }
 
 resource "cloudfoundry_service_instance" "objectstore" {
