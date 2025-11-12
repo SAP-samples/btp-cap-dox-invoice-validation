@@ -2,7 +2,7 @@
 
 This section provides an in-depth explanation of how the **SAP Cloud Application Programming Model (CAP)** backend interacts with the different services on the **SAP Business Technology Platform (SAP BTP)**, focusing especially on the **SAP Document AI** Service.
 
-[<img src="images\Solution_Diagram_interaction_new_cache.drawio.png" width="1200"/>](images/Solution_Diagram_interaction_new_cache.drawio.png)
+[<img src="images\Solution_Diagram_Interaction.png" width="1200"/>](images/Solution_Diagram_Interaction.png)
 _**Picture:** Sequence Interactions of Invoice Validation_
 
 As illustrated in the picture above, the application's core purpose is to validate invoices received via e-mail or physical mail - scanned into a PDF format file. The invoices are stored via the **BTP Object Store** Service in an arbitrary object store, e.g. **Amazon S3 Object Store**, ensuring that a persistent version of each invoice is available.
