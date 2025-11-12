@@ -46,23 +46,23 @@ Make sure a HANA CLOUD instance is mapped to your BTP space, so that there is a 
 
 7. Within the BTP Cockpit inside your subaccount, create a [role collection](https://cap.cloud.sap/docs/node.js/authentication#auth-in-cockpit) _DOX\_Mission\_Administrator_ and add the _Administrator_ role to it; then assign yourself to the collection. (The role was precreated during the deployment and you will find it in the roles list under _Security_ in your subaccount, if you filter by _mission_.)
 
-8. Last but not least, the app needs a destination to connect to the DOX service.
+8. Last but not least, the app needs a destination to connect to the SAP Document AI service.
 First, create a [service key](https://help.sap.com/docs/service-manager/sap-service-manager/creating-service-keys-in-cloud-foundry?version=Cloud&locale=en-US)
-for the DOX service instance which was created during deployment.  To then create the destination, log in to your SAP BTP cockpit and navigate to your
+for the SAP Document AI service instance which was created during deployment.  To then create the destination, log in to your SAP BTP cockpit and navigate to your
 subaccount. In the navigation area therein, go to Connectivity -> Destinations and select _Create Destination_. The name of the destination
 needs to be precisely _DOX_PREMIUM_INVOICE_VALIDATION_, this is what the app is going to look for. Configure the destination as shown below and enter the
 credentials provided in the service key.
 
 ```
 Name: DOX_PREMIUM_INVOICE_VALIDATION
-Description: Connection to Document Information Extraction (DOX) service
-URL: <URL-PROPERTY-IN-DOX-SERVICE-KEY>/document-information-extraction/v1 # make sure to add /v1!
+Description: Connection to SAP Document AI service
+URL: <URL-PROPERTY-IN-SERVICE-KEY>/document-information-extraction/v1 # make sure to add /v1!
 Type: HTTP
 ProxyType: Internet
 Authentication: OAuth2ClientCredentials
-tokenServiceURL: <AUTH-URL-IN-DOX-SERVICE-KEY>/oauth/token
-clientId: <CLIENT-ID-IN-DOX-SERVICE-KEY>
-clientSecret: <CLIENT-SECRET-IN-DOX-SERVICE-KEY>
+tokenServiceURL: <AUTH-URL-IN-SERVICE-KEY>/oauth/token
+clientId: <CLIENT-ID-IN-SERVICE-KEY>
+clientSecret: <CLIENT-SECRET-IN-SERVICE-KEY>
 # Additional Properties:
 URL.headers.Content-Type: application/json
 HTML5.DynamicDestination: true
